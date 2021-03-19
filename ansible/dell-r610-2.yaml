@@ -11,3 +11,9 @@
   roles:
     - netplan 
 
+- hosts: dell-r610-2
+  name: Apply disk layout to R610 hosts and setup LXD
+  remote_user: ubuntu
+  roles:
+    - lvm-r620
+    - lxd
