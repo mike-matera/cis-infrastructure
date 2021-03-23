@@ -1,5 +1,5 @@
 ---
-# 
+# 2021 owner: Michael
 # Playbook for the Dell R610-2 Machine
 #
 # This machine is deployed by MAAS
@@ -12,8 +12,17 @@
     - netplan 
 
 - hosts: dell-r610-2
+<<<<<<< HEAD
   name: Apply disk layout to R610 hosts and setup LXD
   remote_user: ubuntu
   roles:
     - lvm-r620
     - lxd
+=======
+  name: Apply disk layout and install LXD
+  remote_user: ubuntu
+  roles:
+    - lvm
+    - lxd 
+
+>>>>>>> 408ceb596a0260e3e34a56d3670c49095923b399
