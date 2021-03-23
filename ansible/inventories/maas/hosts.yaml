@@ -13,10 +13,13 @@ all:
       vg_disk_home_size: 200
     supermicro-1:
       ansible_host: 192.168.0.131
+      primary_interface: cisnet
     supermicro-2:
       ansible_host: 192.168.0.132
+      primary_interface: cisnet
     supermicro-3:
       ansible_host: 192.168.0.133
+      primary_interface: cisnet
     dell-r620-1:
       ansible_host: 192.168.0.134
       primary_interface: cisnet
@@ -31,8 +34,10 @@ all:
       device_hdd: /dev/sdb
     dell-r610-1:
       ansible_host: 192.168.0.136
+      primary_interface: cisnet
     dell-r610-2:
       ansible_host: 192.168.0.137
+      primary_interface: cisnet
     dell-r610-3:
       ansible_host: 192.168.0.138
       primary_interface: cisnet
