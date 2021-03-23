@@ -13,3 +13,9 @@
   name: Apply networking configuration
   roles:
     - netplan 
+
+- hosts: dell-r610-3
+  name: Apply disk layout to R610 hosts and setup LXD
+  roles:
+   - lvm-r620
+   - lxd 
