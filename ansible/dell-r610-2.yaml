@@ -16,5 +16,26 @@
   remote_user: ubuntu
   roles:
     - lvm
-    - lxd 
+    - lxd
+    - test_server
+  vars:
+      userName: testopus
+      nicName: eth0
+      nictype: bridged
+      parent: server
+      hwaddr: aa:99:55:00:00:01
+      #disk:Maybe
+      #mem:Maybe
+      netconfig: |
+        network:
+          ethernets:
+              eth0:
+                addresses:
+                  - 172.30.5.246/24
+                  - 2607:F380:80F:F425::246/64
+                gateway4: 172.30.5.1
+                nameservers:
+                  search: [cis.cabrillo.edu]
+                  addresses: [172.30.5.101, 172.30.5.102] 
+      distro: 'ubuntu:18.04'
 
