@@ -1,14 +1,14 @@
 #
-# Create the {{ userName }} container in LXD.
+# Create the "{{ userName }}" container in LXD.
 #
 # This assumes lxd has been setup according to the lxd role.
 # Home directories will be shared with the host. 
 #
 
-- name: Create {{ userName }} home directories.
+- name: Create "{{ userName }}" home directories.
   become: yes
   file:
-    path: /data/homes/{{ userName }}
+    path: /data/homes/"{{ userName }}"
     state: directory
     mode: '0755'
     owner: '1000000'
@@ -18,64 +18,54 @@
   become: yes
   copy:
     src: /home/ubuntu
-    dest: /data/homes/{{ userName }}/
+    dest: /data/homes/"{{ userName }}"/
     remote_src: yes
     owner: '1001000'
     group: '1001000'
 
-- name: Create {{ userName }} netplan configuration directory.
+- name: Create "{{ userName }}" netplan configuration directory.
   become: yes
   file:
-    path: /data/config/{{ userName }}/netplan
+    path: /data/config/"{{ userName }}"/netplan
     state: directory
     mode: '0755'
 
-- name: Create {{ userName }} network configuration.
+- name: Create "{{ userName }}" network configuration.
   become: yes
   blockinfile:
     create: yes
-    path: /data/config/{{ userName }}/netplan/99-static.yaml
-    block: | 
-      network:
-          ethernets:
-              eth0:
-                addresses:
-                  - 172.30.5.246/24
-                  - 2607:F380:80F:F425::246/64
-                gateway4: 172.30.5.1
-                nameservers:
-                  search: [cis.cabrillo.edu]
-                  addresses: [172.30.5.101, 172.30.5.102]
-
-- name: Check for the {{ userName }} profile.
-  shell: lxc profile list | grep -q {{ userName }} 
+    path: /data/config/"{{ userName }}"/netplan/99-static.yaml
+    block: "{{ netconfig }}" 
+      
+- name: Check for the "{{ userName }}" profile.
+  shell: lxc profile list | grep -q "{{ userName }}" 
   register: testopus_profile_exists
   ignore_errors: True 
   changed_when: False 
 
-- name: Create {{ userName }} profile
+- name: Create "{{ userName }}" profile
   shell: 
     cmd: |
-      lxc profile create {{ userName }}
-      lxc profile device add {{ userName }} root disk size=100GB pool=default path=/
-      lxc profile device add {{ userName }} homes disk source=/data/homes/{{ userName }} path=/home
-      lxc profile device add {{ userName }} netplan disk source=/data/config/{{ userName }}/netplan path=/etc/netplan
-      lxc profile device add {{ userName }} eth0 nic {{ nicName }} {{ nictype }} {{ parent }} {{ hwaddr }}
+      lxc profile create "{{ userName }}"
+      lxc profile device add "{{ userName }}" root disk size=100GB pool=default path=/
+      lxc profile device add "{{ userName }}" homes disk source=/data/homes/"{{ userName }}" path=/home
+      lxc profile device add "{{ userName }}" netplan disk source=/data/config/"{{ userName }}"/netplan path=/etc/netplan
+      lxc profile config device add "{{ userName }}" eth0 nic "{{ nicName }}" "{{ nictype }}" "{{ parent }}" "{{ hwaddr }}"
   when: testopus_profile_exists.rc == 1
 
-- name: Check if {{ userName }} exists.
-  shell: lxc profile list | grep -q {{ userName }} 
+- name: Check if "{{ userName }}" exists.
+  shell: lxc list | grep -q "{{ userName }}" 
   register: testopus_exists 
   ignore_errors: True 
   changed_when: False 
 
-- name: Create {{ userName }} 
+- name: Create "{{ userName }}" 
   shell:
     cmd: | 
-      lxc launch {{ distro }} {{ userName }} -p {{ userName }} -c security.nesting=true
+      lxc launch "{{ distro }}" "{{ userName }}" -p "{{ userName }}" -c security.nesting=true
   when: testopus_exists.rc == 1
 
-- name: Set max user watches so vscode works well on {{ userName }}.
+- name: Set max user watches so vscode works well on "{{ userName }}".
   become: yes
   sysctl:
     name: fs.inotify.max_user_watches

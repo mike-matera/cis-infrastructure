@@ -17,16 +17,15 @@
   roles:
     - lvm
     - lxd
-    - test_server
-  vars:
-      userName: testopus
-      nicName: eth0
-      nictype: bridged
-      parent: server
-      hwaddr: aa:99:55:00:00:01
-      #disk:Maybe
-      #mem:Maybe
-      netconfig: |
+    - role: test_server
+      vars:
+        userName: testopus
+        nicName: eth0
+        nictype: bridged
+        parent: server
+        hwaddr: aa:99:55:00:00:01
+        distro: 'ubuntu:18.04'
+        netconfig: | 
         network:
           ethernets:
               eth0:
@@ -36,6 +35,6 @@
                 gateway4: 172.30.5.1
                 nameservers:
                   search: [cis.cabrillo.edu]
-                  addresses: [172.30.5.101, 172.30.5.102] 
-      distro: 'ubuntu:18.04'
+                  addresses: [172.30.5.101, 172.30.5.102]  
+
 
