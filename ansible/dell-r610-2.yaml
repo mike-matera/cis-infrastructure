@@ -17,6 +17,16 @@
   roles:
     - lvm
     - lxd
+    - role: test_firewall
+      vars:
+        enableFirewall: true
+        setLogging: true
+        rateLimiting: true
+        allowSSH: true
+        deleteSSH: true
+        allowHttp: true
+        allowHttps: true
+        port53: true
     - role: test_server
       vars:
         userName: testopus
@@ -25,6 +35,7 @@
         parent: server
         hwaddr: aa:99:55:00:00:01
         distro: 'ubuntu:18.04'
+        kaliLinux: kalisys
         netconfig: | 
         network:
           ethernets:
@@ -36,5 +47,4 @@
                 nameservers:
                   search: [cis.cabrillo.edu]
                   addresses: [172.30.5.101, 172.30.5.102]  
-
 
