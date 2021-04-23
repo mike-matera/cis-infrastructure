@@ -16,5 +16,54 @@
   remote_user: ubuntu
   roles:
     - lvm
-    - lxd 
+    - lxd
+    - role: test_firewall
+      vars:
+        enableFirewall: true
+        setLogging: true
+        rateLimiting: true
+        allowSSH: true
+        deleteSSH: true
+        allowHttp: true
+        allowHttps: true
+        port53: true
+    - role: lxd_server
+      vars:
+        userName: testopus
+        nicName: eth0
+        nictype: bridged
+        parent: server
+        hwaddr: aa:99:55:00:00:01
+        distro: 'ubuntu:18.04'
+        netconfig: | 
+          network:
+            ethernets:
+                eth0:
+                  addresses:
+                    - 172.30.5.246/24
+                    - 2607:F380:80F:F425::246/64
+                  gateway4: 172.30.5.1
+                  nameservers:
+                    search: [cis.cabrillo.edu]
+                    addresses: [172.30.5.101, 172.30.5.102] 
+      
+    - role: lxd_server
+      vars:
+        userName: testkali
+        nicName: eth0
+        nictype: bridged
+        parent: server
+        hwaddr: aa:99:55:00:00:02
+        distro: images:kali/current/amd64
+        netconfig: | 
+          network:
+            ethernets:
+                eth0:
+                  addresses:
+                    - 172.30.5.100/24
+                    - 2607:F380:80F:F425::100/64
+                  gateway4: 172.30.5.1
+                  nameservers:
+                    search: [cis.cabrillo.edu]
+                    addresses: [172.30.5.101, 172.30.5.102]  
 

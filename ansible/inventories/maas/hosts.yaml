@@ -46,6 +46,10 @@ all:
     dell-r610-2:
       ansible_host: 192.168.0.137
       primary_interface: cisnet
+      device_ssd: /dev/sda2
+      device_hdd: /dev/sdb
+      vg_disk_pool_size: 150
+      vg_disk_home_size: 70
     dell-r610-3:
       ansible_host: 192.168.0.138
       primary_interface: cisnet

@@ -1,0 +1,83 @@
+#
+# Create the "{{ userName }}" container in LXD.
+#
+# This assumes lxd has been setup according to the lxd role.
+# Home directories will be shared with the host. 
+#
+
+- name: Create "{{ userName }}" home directories.
+  become: yes
+  file:
+    path: "/data/homes/{{ userName }}"
+    state: directory
+    mode: '0755'
+    owner: '1000000'
+    group: '1000000'
+    
+- name: Use the ubuntu user configuration from the host
+  become: yes
+  copy:
+    src: /home/ubuntu
+    dest: "/data/homes/{{ userName }}/"
+    remote_src: yes
+    owner: '1001000'
+    group: '1001000'
+
+- name: Create "{{ userName }}" netplan configuration directory.
+  become: yes
+  file:
+    path: "/data/config/{{ userName }}/netplan"
+    state: directory
+    mode: '0755'
+
+- name: Create "{{ userName }}" network configuration.
+  become: yes
+  blockinfile:
+    create: yes
+    path: "/data/config/{{ userName }}/netplan/99-static.yaml"
+    block: "{{ netconfig }}" 
+      
+- name: Check for the "{{ userName }}" profile.
+  shell: "lxc profile list | grep -q {{ userName }}" 
+  register: profile_exists
+  ignore_errors: True 
+  changed_when: False 
+
+- name: Create "{{ userName }}" profile
+  shell: 
+    cmd: |
+      lxc profile create "{{ userName }}"
+      lxc profile device add "{{ userName }}" root disk size=100GB pool=default path=/
+      lxc profile device add "{{ userName }}" homes disk source=/data/homes/"{{ userName }}" path=/home
+      lxc profile device add "{{ userName }}" netplan disk source=/data/config/"{{ userName }}"/netplan path=/etc/netplan
+      lxc profile device add "{{ userName }}" eth0 nic name={{ nicName }} nictype={{ nictype }} parent={{ parent }} hwaddr={{ hwaddr }}
+  when: profile_exists.rc == 1
+
+- name: Check if "{{ userName }}" exists.
+  shell: lxc list | grep -q "{{ userName }}" 
+  register: container_exists 
+  ignore_errors: True 
+  changed_when: False 
+
+- name: Create "{{ userName }}" 
+  shell:
+    cmd: | 
+      lxc launch "{{ distro }}" "{{ userName }}" -p "{{ userName }}" -c security.nesting=true
+  when: container_exists.rc == 1
+
+- name: Set max user watches so vscode works well on "{{ userName }}".
+  become: yes
+  sysctl:
+    name: fs.inotify.max_user_watches
+    value: '524288'
+    state: present
+    reload: yes
+    sysctl_set: yes
+
+#When in the container run the following:
+# -lxc exec "{{ kaliLinux }}" -- adduser kali
+# -lxc exec "{{ kaliLinux }}" -- usermod -aG sudo kali
+# -lxc exec "{{ kaliLinux }}" -- sed -i '1 i\TERM=xterm-256color' /home/kali/.bashrc
+# -lxc exec "{{ kaliLinux }}" -- sh -c "echo 'Set disable_coredump false' > /etc/sudo.conf"
+# lxc console "{{ kaliLinux }}"
+#
