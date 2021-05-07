@@ -17,16 +17,9 @@
   roles:
     - lvm
     - lxd
-    - role: test_firewall
-      vars:
-        enableFirewall: true
-        setLogging: true
-        rateLimiting: true
-        allowSSH: true
-        deleteSSH: true
-        allowHttp: true
-        allowHttps: true
-        port53: true
+    - test_firewall
+    - test_admin
+
     - role: lxd_server
       vars:
         userName: testopus
@@ -54,7 +47,7 @@
         nictype: bridged
         parent: server
         hwaddr: aa:99:55:00:00:02
-        distro: images:kali/current/amd64
+        distro: images:kali
         netconfig: | 
           network:
             ethernets:
@@ -65,5 +58,4 @@
                   gateway4: 172.30.5.1
                   nameservers:
                     search: [cis.cabrillo.edu]
-                    addresses: [172.30.5.101, 172.30.5.102]  
-
+                    addresses: [172.30.5.101, 172.30.5.102]

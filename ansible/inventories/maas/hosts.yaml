@@ -85,4 +85,14 @@ all:
       hosts:
         dell-r610-1:
         dell-r610-2:
+          user: machavez
+          gitHubID: chavezMac
+          policy: allow #{policy:allow,deny,reject}
+          logging: "on" #{logging:"on,off,low,medium,high,full"}
+          rateLimiting: limit #{rule:allow,deny,limit,reject}
+          allowSSH: allow  #{rule:allow,deny,limit,reject}
+          deleteSSH: "yes" #{delete:yes,no}
+          allowHttp: allow #{rule:allow,deny,limit,reject}
+          allowHttps: allow #{rule:allow,deny,limit,reject}
+          denyPort53: deny #{rule:allow,deny,limit,reject}
         dell-r610-3:

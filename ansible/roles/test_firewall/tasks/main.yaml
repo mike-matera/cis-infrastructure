@@ -1,58 +1,57 @@
+#The variables for this role are located in inventories/maas. In the hosts.yaml file
+#each machine can specify its own firewall regulations by changing the value of the variable with one
+#of the given values listed right above it.
+#
+#
+
 - name: Enable the firewall
   become: yes
   community.general.ufw:
     state: enabled
-    policy: deny
-  when: enableFirewall | bool
+    policy: "{{ policy }}"
 
 - name: Set logging
   become: yes
   community.general.ufw:
-    logging: 'on'
-  when: setLogging | bool
-
+    logging: "{{logging}}"
+  
+  
 - name: Connection rate limiting
   become: yes
   community.general.ufw:
-    rule: limit
+    rule: "{{ rateLimiting }}"
     port: ssh
     proto: tcp
-  when: rateLimiting | bool
 
 - name: Allow SSH
   become: yes
   community.general.ufw:
-    rule: allow
+    rule: "{{ allowSSH }}"
     name: OpenSSH
-  when: allowSSH | bool
 
 - name: Delete OpenSSH rule
   become: yes
   community.general.ufw:
     rule: allow
     name: OpenSSH
-    delete: yes
-  when: deleteSSH | bool
+    delete: "{{ deleteSSH }}"
 
 - name: Allow HTTP
   become: yes
   community.general.ufw:
-    rule: allow
+    rule: "{{ allowHttp }}"
     port: '80'
     proto: tcp
-  when: allowHttp | bool
 
 - name: Allow HTTPS
   become: yes
   community.general.ufw:
-    rule: allow
+    rule: "{{ allowHttps }}"
     port: '443'
     proto: tcp
-  when: allowHttps | bool
 
 - name: Deny all access to port 53
   become: yes
   community.general.ufw:
-    rule: deny
+    rule: "{{ denyPort53 }}"
     port: '53'
-  when: port53 | bool
