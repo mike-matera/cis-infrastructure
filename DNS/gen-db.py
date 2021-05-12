@@ -53,18 +53,19 @@ def fwd(hosts, role):
 def subdomain(domains):
 	"""Make glue records.""" 
 	rval = ""
-	for d in domains:
-		domain = dict(d)
-		name = domain['name']
-		del domain['name']
-		for ns in domain:
-			rval += f"""{name}.cis.cabrillo.edu. IN NS {ns}.{name}.cis.cabrillo.edu.\n"""
-			for addr in domain[ns]:
-				ip = ipaddress.ip_address(addr)
-				if ip.version == 4:
-					rval += f"""{ns}.{name}.cis.cabrillo.edu. IN A {ip}\n"""
-				else:
-					rval += f"""{ns}.{name}.cis.cabrillo.edu. IN AAAA {ip}\n"""
+	if domains is not None:
+		for d in domains:
+			domain = dict(d)
+			name = domain['name']
+			del domain['name']
+			for ns in domain:
+				rval += f"""{name}.cis.cabrillo.edu. IN NS {ns}.{name}.cis.cabrillo.edu.\n"""
+				for addr in domain[ns]:
+					ip = ipaddress.ip_address(addr)
+					if ip.version == 4:
+						rval += f"""{ns}.{name}.cis.cabrillo.edu. IN A {ip}\n"""
+					else:
+						rval += f"""{ns}.{name}.cis.cabrillo.edu. IN AAAA {ip}\n"""
 	
 	return rval 
 
