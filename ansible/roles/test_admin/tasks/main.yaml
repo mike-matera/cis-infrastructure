@@ -8,7 +8,6 @@
   become: yes
   user:
     name: "{{ user }}"
-    uid: 1001
     shell: /bin/bash
     home: "/home/{{ user }}"
     groups: adm,dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,lxd,netdev
@@ -30,19 +29,30 @@
     group: "{{ user }}"
     mode: '0700'
 
-#Issue with src:
-#- name: Add kubernetes configuration for "{{ user }}"
-# become: yes
-# copy:
-#  src: secrets/kube-config
-#  dest: "/home/{{ user }}/.kube/config" 
-#  owner: "{{ user }}"
-#  group: "{{ user }}"
-#  mode: '600'
-
 - name: Add the admin to passwordless SUDO 
   become: yes
   blockinfile: 
     path: /etc/sudoers.d/90-cloud-init-users
     block: |
       "{{ user }}" ALL=(ALL) NOPASSWD:ALL
+
+
+
+#opus->dell->lxc
+#- name: Add keys to container
+#  become: yes
+#  authorized_key:
+#    user: "{{ user }}"
+#    state: present
+#    key: "https://github.com/{{ gitHubID }}.keys"
+#  delegate_to: 172.30.5.235
+
+#- name: Add user to container
+#  become: yes
+#  user:
+#    name: "{{ user }}"
+#    shell: /bin/bash
+#    home: "/home/{{ user }}"
+#    groups: adm,dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,lxd,netdev
+#    append: yes
+#  delegate_to: 172.30.5.235

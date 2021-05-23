@@ -37,28 +37,48 @@
     path: "/data/config/{{ userName }}/netplan/99-static.yaml"
     block: "{{ netconfig }}" 
       
-- name: Check for the "{{ userName }}" profile.
-  shell: "lxc profile list | grep -q {{ userName }}" 
-  register: profile_exists
-  ignore_errors: True 
-  changed_when: False 
+- name: Create a profile
+  community.general.lxd_profile:
+    name: "{{ userName }}"
+    state: present
+    config: 
+      user.vendor-data: |
+        #cloud-config
+        users:
+          - name: "{{ user }}"
+            ssh-import-id: "gh:{{ gitHubID }}"
+            shell: /bin/bash
+            sudo: ALL=(ALL) NOPASSWD:ALL
+            groups: admin
+    description: my ansible profile
+    devices:
+      eth0:
+        name: "{{ nicName }}"
+        hwaddr: "{{ hwaddr }}"
+        nictype: "{{ nictype }}"
+        parent: "{{ parent }}"
+        type: nic
+      homes:
+        path: /home
+        source: "/data/homes/{{ userName }}"
+        type: disk
+      netplan:
+        path: /etc/netplan
+        source: "/data/config/{{ userName }}/netplan"
+        type: disk
+      root:
+        path: /
+        pool: default
+        size: "{{ size }}"
+        type: disk
 
-- name: Create "{{ userName }}" profile
-  shell: 
-    cmd: |
-      lxc profile create "{{ userName }}"
-      lxc profile device add "{{ userName }}" root disk size=100GB pool=default path=/
-      lxc profile device add "{{ userName }}" homes disk source=/data/homes/"{{ userName }}" path=/home
-      lxc profile device add "{{ userName }}" netplan disk source=/data/config/"{{ userName }}"/netplan path=/etc/netplan
-      lxc profile device add "{{ userName }}" eth0 nic name={{ nicName }} nictype={{ nictype }} parent={{ parent }} hwaddr={{ hwaddr }}
-  when: profile_exists.rc == 1
 
 - name: Check if "{{ userName }}" exists.
   shell: lxc list | grep -q "{{ userName }}" 
   register: container_exists 
   ignore_errors: True 
   changed_when: False 
-
+ 
 - name: Create "{{ userName }}" 
   shell:
     cmd: | 

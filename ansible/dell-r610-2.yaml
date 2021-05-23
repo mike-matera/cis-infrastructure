@@ -27,15 +27,16 @@
         nictype: bridged
         parent: server
         hwaddr: aa:99:55:00:00:01
+        size: 100GB
         distro: 'ubuntu:18.04'
         netconfig: | 
           network:
             ethernets:
                 eth0:
                   addresses:
-                    - 172.30.5.231/24
-                    - 2607:F380:80F:F425::231/64
+                    - 172.30.5.235/24
+                    - 2607:F380:80F:F425::235/64
                   gateway4: 172.30.5.1
                   nameservers:
                     search: [cis.cabrillo.edu]
-                    addresses: [172.30.5.101, 172.30.5.102] 
+                    addresses: [172.30.5.101, 172.30.5.102]
