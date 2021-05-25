@@ -93,11 +93,3 @@
     state: present
     reload: yes
     sysctl_set: yes
-
-#When in the container run the following:
-# -lxc exec "{{ kaliLinux }}" -- adduser kali
-# -lxc exec "{{ kaliLinux }}" -- usermod -aG sudo kali
-# -lxc exec "{{ kaliLinux }}" -- sed -i '1 i\TERM=xterm-256color' /home/kali/.bashrc
-# -lxc exec "{{ kaliLinux }}" -- sh -c "echo 'Set disable_coredump false' > /etc/sudo.conf"
-# lxc console "{{ kaliLinux }}"
-#

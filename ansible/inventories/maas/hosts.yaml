@@ -87,7 +87,7 @@ all:
         dell-r610-2:
           user: machavez
           gitHubID: chavezMac
-          policy: allow #{policy:allow,deny,reject}
+          policy: deny #{policy:allow,deny,reject}
           logging: "on" #{logging:"on,off,low,medium,high,full"}
           rateLimiting: limit #{rule:allow,deny,limit,reject}
           allowSSH: allow  #{rule:allow,deny,limit,reject}
