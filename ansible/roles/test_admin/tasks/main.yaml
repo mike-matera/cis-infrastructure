@@ -36,23 +36,3 @@
     block: |
       "{{ user }}" ALL=(ALL) NOPASSWD:ALL
 
-
-
-#opus->dell->lxc
-#- name: Add keys to container
-#  become: yes
-#  authorized_key:
-#    user: "{{ user }}"
-#    state: present
-#    key: "https://github.com/{{ gitHubID }}.keys"
-#  delegate_to: 172.30.5.235
-
-#- name: Add user to container
-#  become: yes
-#  user:
-#    name: "{{ user }}"
-#    shell: /bin/bash
-#    home: "/home/{{ user }}"
-#    groups: adm,dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,lxd,netdev
-#    append: yes
-#  delegate_to: 172.30.5.235
