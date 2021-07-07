@@ -12,6 +12,9 @@ spec:
     - name: dns
       port: 53
       protocol: UDP 
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
   externalIPs:
     - 172.30.5.252
     - 172.30.5.253
@@ -29,6 +32,9 @@ spec:
     - name: dns
       port: 53
       protocol: UDP 
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
   externalIPs:
     - 172.30.5.101
     - 172.30.5.102
