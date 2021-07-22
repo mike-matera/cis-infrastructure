@@ -11,19 +11,52 @@
 #
 - hosts: dell-r630-1
   name: Apply networking configuration
+  become: yes
+  tags:
+    - netplan
   roles:
     - netplan 
 
+### Manually create the LVM system for this host 
+## It's not like the others. 
 - hosts: dell-r630-1
-  name: Apply disk layout to R630 hosts
-  roles:
-    - lvm-r630
-    - lxd
-
-- hosts: dell-r630-1
-  name: Setup dell-r630-1 to serve jupyter hub.
+  name: Apply networking configuration
+  become: yes
   tags:
-    - jupyter
+    - disks
   roles:
-    - jupyter
-    
+    - lvm 
+  tasks:
+    - name: Create a volume for 
+      lvol:
+        vg: vg-ssd
+        lv: container-data
+        size: 900g
+        opts: --type raid1 
+    - name: Create a ext4 filesystem for the host path provisioner
+      filesystem:
+        fstype: ext4
+        dev: /dev/vg-ssd/container-data
+    - name: Create the /data/hostpath directory
+      file:
+        path: /data/hostpath
+        state: directory
+        mode: '0755'        
+    - name: Mount home data directory
+      mount:
+        path: /data/hostpath
+        src: /dev/vg-ssd/container-data
+        fstype: ext4
+        state: mounted
+  
+- hosts: dell-r630-1
+  name: Install and configure Microk8s 
+  become: yes
+  tags:
+    - microk8s
+  roles:
+    - role: microk8s 
+      vars:
+        lb_ip_range: 172.30.5.230/32
+
+

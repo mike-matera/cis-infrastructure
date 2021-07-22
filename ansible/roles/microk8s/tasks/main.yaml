@@ -31,49 +31,40 @@
   
 - name: Start microk8s
   shell: /snap/bin/microk8s start 
-  when: microk8s_running.rc == 0
 
-- name: Enable helm3 package manager.
-  shell: |
-    /snap/bin/microk8s status | grep -q "helm3: disabled" 
-  register: microk8s_helm3
-  ignore_errors: True 
-  changed_when: False 
-  
 - name: Enable Helm v3
   shell: /snap/bin/microk8s enable helm3 
-  when: microk8s_helm3.rc == 0
-
-- name: Enable kube dns.
-  shell: |
-    /snap/bin/microk8s status | grep -q "dns: disabled" 
-  register: microk8s_dns
-  ignore_errors: True 
-  changed_when: False 
   
 - name: Enable kube dns.
   shell: /snap/bin/microk8s enable dns 
-  when: microk8s_dns.rc == 0
   
-- name: Allow traffic from micro8s cni0 interface
+- name: Enable iscsi (needed for OpenEBS)
+  ansible.builtin.systemd:
+    name: iscsid.service
+    state: enabled
+
+- name: Enable OpenEBS
+  shell: /snap/bin/microk8s enable openebs
+  
+- name: Enable MetalLB
+  shell: /snap/bin/microk8s enable metallb "{{ lb_ip_range }}"
+  
+- name: Enable Ingress
+  shell: /snap/bin/microk8s enable ingress 
+
+- name: Allow traffic from microk8s cni0 interface
   become: yes
   ufw:
     rule: allow
     interface: cni0
     direction: in
   
-- name: Allow traffic from micro8s cni0 interface
+- name: Allow traffic from microk8s cni0 interface
   become: yes
   ufw:
     rule: allow
     interface: cni0
     direction: out
-
-- name: Allow traffic from the server network.
-  become: yes
-  ufw:
-    rule: allow
-    src: 172.30.5.0/24
 
 - name: Allow forwarding
   become: yes
@@ -81,12 +72,11 @@
     rule: allow
     route: yes
 
-- name: Allow forwarding
+- name: Allow traffic from the server network.
   become: yes
   ufw:
     rule: allow
-    proto: udp 
-    port: '53' 
+    src: 172.30.5.0/24
 
 - name: Enable the firewall 
   become: yes
@@ -94,11 +84,11 @@
     state: enabled
     policy: deny
 
-- name: Get micro8s configuration file. 
+- name: Get microk8s configuration file. 
   delegate_to: '{{ inventory_hostname }}'
   raw: '/snap/bin/microk8s config'
-  register: micro8s_secret
+  register: microk8s_secret
   changed_when: False
 
 - name: Save the kubectl config file locally. 
-  local_action: copy content={{ micro8s_secret.stdout }} dest=roles/admins/secrets/kube-config-{{ inventory_hostname }}
+  local_action: copy content={{ microk8s_secret.stdout }} dest=roles/admins/secrets/kube-config-{{ inventory_hostname }}
