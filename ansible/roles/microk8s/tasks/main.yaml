@@ -41,7 +41,8 @@
 - name: Enable iscsi (needed for OpenEBS)
   ansible.builtin.systemd:
     name: iscsid.service
-    state: enabled
+    enabled: yes
+    state: restarted
 
 - name: Enable OpenEBS
   shell: /snap/bin/microk8s enable openebs
@@ -53,36 +54,21 @@
   shell: /snap/bin/microk8s enable ingress 
 
 - name: Allow traffic from microk8s cni0 interface
-  become: yes
   ufw:
     rule: allow
     interface: cni0
     direction: in
   
 - name: Allow traffic from microk8s cni0 interface
-  become: yes
   ufw:
     rule: allow
     interface: cni0
     direction: out
 
 - name: Allow forwarding
-  become: yes
   ufw:
     rule: allow
     route: yes
-
-- name: Allow traffic from the server network.
-  become: yes
-  ufw:
-    rule: allow
-    src: 172.30.5.0/24
-
-- name: Enable the firewall 
-  become: yes
-  ufw:
-    state: enabled
-    policy: deny
 
 - name: Get microk8s configuration file. 
   delegate_to: '{{ inventory_hostname }}'

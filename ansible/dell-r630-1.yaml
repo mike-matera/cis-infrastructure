@@ -16,11 +16,22 @@
     - netplan
   roles:
     - netplan 
+  tasks:
+  - name: Add CIS Networking Bridge Configuration
+    become: yes
+    template:
+      src: hostfiles/dell-r630-1/99-host-config.yaml
+      dest: /etc/netplan
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r
+  - name: netplan apply 
+    shell: netplan apply
 
 ### Manually create the LVM system for this host 
 ## It's not like the others. 
 - hosts: dell-r630-1
-  name: Apply networking configuration
+  name: Apply LVM Configuraiton
   become: yes
   tags:
     - disks
@@ -59,4 +70,27 @@
       vars:
         lb_ip_range: 172.30.5.230/32
 
-
+- hosts: dell-r630-1
+  name: Configure the firewall 
+  become: yes
+  tags:
+    - firewall
+  tasks:
+    - name: Allow traffic from the server network.
+      become: yes
+      ufw:
+        rule: allow
+        src: 172.30.5.0/24
+    - name: Allow SSH 
+      ufw:
+        rule: allow
+        port: ssh
+        proto: tcp
+    - ufw:
+        rule: limit
+        port: ssh
+        proto: tcp
+    - name: Enable the firewall 
+      ufw:
+        state: enabled
+        policy: deny

@@ -1,0 +1,42 @@
+#
+# Configuration for the zero to kubernetes chart 
+#
+
+proxy:
+  service:
+    type: ClusterIP 
+
+singleuser:
+  image:
+    name: docker.io/mikematera/p4e-stack
+    tag: "20210722"
+  defaultUrl: "/lab"
+  memory:
+    limit: 2G
+    guarantee: 1G
+  cpu:
+    limit: 2
+    guarantee: 0.5
+
+hub:
+  config:
+    Authenticator:
+      admin_users:
+        - mmatera
+      allowed_users:
+        - student
+    DummyAuthenticator:
+      password: fuckfuck
+    JupyterHub:
+      authenticator_class: dummy
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/issuer: selfsigned-issuer
+  hosts:
+    - jupyter.cis.cabrillo.edu
+  tls:
+    - hosts:
+        - jupyter.cis.cabrillo.edu
+      secretName: jupyterhub-tls-secret  
