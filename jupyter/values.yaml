@@ -2,14 +2,21 @@
 # Configuration for the zero to kubernetes chart 
 #
 
+# Let's Encrypt is built into JupyterHub
 proxy:
+  https:
+    enabled: true
+    hosts:
+      - jupyter.cis.cabrillo.edu
+    letsencrypt:
+      contactEmail: michael.matera@cabrillo.edu
   service:
-    type: ClusterIP 
-
+    loadBalancerIP: 172.30.5.230
+  
 singleuser:
   image:
     name: docker.io/mikematera/p4e-stack
-    tag: "20210722"
+    tag: "20210724"
   defaultUrl: "/lab"
   memory:
     limit: 2G
@@ -17,6 +24,39 @@ singleuser:
   cpu:
     limit: 2
     guarantee: 0.5
+  lifecycleHooks:
+    postStart:
+      exec:
+        command:
+          [
+            "gitpuller",
+            "https://github.com/mike-matera/python-for-everyone",
+            "main",
+            "cis-15",
+          ]
+  extraFiles:
+    # jupyter_notebook_config reference: https://jupyter-notebook.readthedocs.io/en/stable/config.html
+    jupyter_notebook_config.json:
+      mountPath: /etc/jupyter/jupyter_notebook_config.json
+      # data is a YAML structure here but will be rendered to JSON file as our
+      # file extension is ".json".
+      data:
+        MappingKernelManager:
+          # cull_idle_timeout: timeout (in seconds) after which an idle kernel is
+          # considered ready to be culled
+          cull_idle_timeout: 1200 # default: 0
+
+          # cull_interval: the interval (in seconds) on which to check for idle
+          # kernels exceeding the cull timeout value
+          cull_interval: 120 # default: 300
+
+          # cull_connected: whether to consider culling kernels which have one
+          # or more connections
+          cull_connected: true # default: false
+
+          # cull_busy: whether to consider culling kernels which are currently
+          # busy running some code
+          cull_busy: false # default: false
 
 hub:
   config:
