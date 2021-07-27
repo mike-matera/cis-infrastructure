@@ -16,7 +16,7 @@ proxy:
 singleuser:
   image:
     name: ghcr.io/mike-matera/python-for-everyone
-    tag: "latest"
+    tag: "a1b901039cd8"
   defaultUrl: "/lab"
   memory:
     limit: 2G
@@ -28,12 +28,12 @@ singleuser:
     postStart:
       exec:
         command:
-          [
-            "gitpuller",
-            "https://github.com/mike-matera/python-for-everyone",
-            "main",
-            "cis-15",
-          ]
+          - "sh"
+          - "-c"
+          - >
+            gitpuller https://github.com/mike-matera/python-for-everyone release-fa21 cis-15;
+            ln -sf cis-15/Packages ~/Packages;
+            
   extraFiles:
     # jupyter_notebook_config reference: https://jupyter-notebook.readthedocs.io/en/stable/config.html
     jupyter_notebook_config.json:
