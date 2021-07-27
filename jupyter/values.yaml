@@ -15,8 +15,8 @@ proxy:
   
 singleuser:
   image:
-    name: docker.io/mikematera/p4e-stack
-    tag: "20210724"
+    name: ghcr.io/mike-matera/python-for-everyone
+    tag: "latest"
   defaultUrl: "/lab"
   memory:
     limit: 2G
@@ -57,26 +57,3 @@ singleuser:
           # cull_busy: whether to consider culling kernels which are currently
           # busy running some code
           cull_busy: false # default: false
-
-hub:
-  config:
-    Authenticator:
-      admin_users:
-        - mmatera
-      allowed_users:
-        - student
-    DummyAuthenticator:
-      password: fuckfuck
-    JupyterHub:
-      authenticator_class: dummy
-
-ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/issuer: selfsigned-issuer
-  hosts:
-    - jupyter.cis.cabrillo.edu
-  tls:
-    - hosts:
-        - jupyter.cis.cabrillo.edu
-      secretName: jupyterhub-tls-secret  

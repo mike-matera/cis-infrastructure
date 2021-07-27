@@ -20,12 +20,12 @@ helm repo update
 Install JupyterHub:
 
 ```
-helm install jhub jupyterhub/jupyterhub --values values.yaml
+helm install jhub jupyterhub/jupyterhub --values values.yaml --values secrets.yaml
 ```
 
 Update JupyterHub:
 
 ```
-helm upgrade jhub jupyterhub/jupyterhub --values values.yaml
+helm upgrade jhub jupyterhub/jupyterhub --values values.yaml --values secrets.yaml
 ```
 
