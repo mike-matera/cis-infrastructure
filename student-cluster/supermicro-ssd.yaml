@@ -1,0 +1,31 @@
+
+apiVersion: cstor.openebs.io/v1
+kind: CStorPoolCluster
+metadata:
+  name: supermicro-ssd
+  namespace: openebs
+spec:
+  pools:
+    - nodeSelector:
+        kubernetes.io/hostname: "supermicro-1"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-8c8b2ced7d9c5ac1e4323189e3333609"
+      poolConfig:
+        dataRaidGroupType: "stripe"
+
+    - nodeSelector:
+        kubernetes.io/hostname: "supermicro-2"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-b53156d4c4b6bb1ef298aa7a1a46ec87"
+      poolConfig:
+        dataRaidGroupType: "stripe"
+
+    - nodeSelector:
+        kubernetes.io/hostname: "supermicro-3"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-d590610ca8f394aa096f47dd3f1ef5f5"
+      poolConfig:
+        dataRaidGroupType: "stripe"
