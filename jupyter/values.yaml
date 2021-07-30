@@ -19,11 +19,11 @@ singleuser:
     tag: "a1b901039cd8"
   defaultUrl: "/lab"
   memory:
-    limit: 2G
-    guarantee: 1G
+    limit: 4G
+    guarantee: 2G
   cpu:
     limit: 2
-    guarantee: 0.5
+    guarantee: 1
   lifecycleHooks:
     postStart:
       exec:

@@ -2,11 +2,7 @@
 
 ## Setup
 
-I changed the local path to the host provisioner and set a default storage class: 
-
-```
-kubectl apply -f local-ssd-storageclass.yaml
-```
+There must be a default storage class available.
 
 ## Helm Setup 
 
@@ -20,12 +16,12 @@ helm repo update
 Install JupyterHub:
 
 ```
-helm install jhub jupyterhub/jupyterhub --values values.yaml --values secrets.yaml
+helm install -n jhub --create-namespace jhub jupyterhub/jupyterhub --values values.yaml --values secrets.yaml
 ```
 
 Update JupyterHub:
 
 ```
-helm upgrade jhub jupyterhub/jupyterhub --values values.yaml --values secrets.yaml
+helm upgrade -n jhub jhub jupyterhub/jupyterhub --values values.yaml --values secrets.yaml
 ```
 
