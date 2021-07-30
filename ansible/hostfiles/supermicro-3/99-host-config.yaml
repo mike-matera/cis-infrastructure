@@ -1,0 +1,8 @@
+# Configure this host
+# This seems to be necessary for MetalLB to work.
+network:
+  version: 2
+  bridges:
+    server:
+      addresses: [172.30.5.63/24]
+    

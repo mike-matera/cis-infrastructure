@@ -1,0 +1,15 @@
+# 
+# Join a node to the leader.
+#
+
+- name: Create the leader key 
+  shell: /snap/bin/microk8s add-node | grep "microk8s join" | head -n 1 
+  when: leader is defined
+  register: microk8s_join_key
+
+# Joining fails with rc == 6 when the node is alrady joined. 
+# Hack just ignores bad codes. 
+- name: Join this node 
+  shell: "/snap/bin/{{ joincmd }} || /bin/true"
+  when: joincmd is defined
+  

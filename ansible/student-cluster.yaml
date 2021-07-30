@@ -1,0 +1,107 @@
+
+- hosts: student-cluster
+  name: Apply networking configuration
+  become: yes
+  tags:
+    - netplan
+  roles:
+    - netplan 
+  tasks:
+  - name: Add CIS Networking Bridge Configuration
+    template:
+      src: "hostfiles/{{ inventory_hostname_short }}/99-host-config.yaml"
+      dest: /etc/netplan
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r
+  - name: netplan apply 
+    shell: netplan apply
+
+- hosts: supermicro-1 
+  name: Install mikcrok8s in the leader configuration 
+  become: yes 
+  roles:
+    - role: microk8s 
+      vars:
+        lb_ip_range: 172.30.5.240/29,172.30.5.230-172.30.5.232
+  tags:
+    - microk8s
+
+- hosts: supermicro-2, supermicro-3, dell-r630-1
+  name: Install mikcrok8s in the worker configuration
+  become: yes 
+  roles:
+    - role: microk8s 
+      vars:
+        worker: true
+  tags:
+    - microk8s
+
+## 
+# Join between supermicro-1 and 2
+#
+- hosts: supermicro-1
+  name: Get a join key. 
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        leader: true
+  tags:
+    - cluster
+
+- hosts: supermicro-2
+  name: Join supermicro-2
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
+  tags:
+    - cluster
+        
+## 
+# Join between supermicro-1 and 3
+#
+- hosts: supermicro-1
+  name: Get a join key. 
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        leader: true
+  tags:
+    - cluster
+
+- hosts: supermicro-3
+  name: Join supermicro-3
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
+  tags:
+    - cluster
+        
+## 
+# Join between supermicro-1 and dell-r630-1
+#
+- hosts: supermicro-1
+  name: Get a join key. 
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        leader: true
+  tags:
+    - cluster
+
+- hosts: dell-r630-1
+  name: Join dell-r630-1
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
+  tags:
+    - cluster

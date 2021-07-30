@@ -6,15 +6,38 @@
 # opus. 
 #
 
+- name: Install required packages.
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    pkg: 
+      - open-iscsi
+
+- name: Enable iscsi (needed for OpenEBS)
+  ansible.builtin.systemd:
+    name: iscsid.service
+    enabled: yes
+    state: restarted
+
+- name: Enable the iscsi-tcp module.
+  blockinfile:
+    path: /etc/modules-load.d/iscsi-tcp.conf
+    create: yes
+    block: |
+      iscsi_tcp
+
+- name: Load the iscsi-tcp module.
+  modprobe:
+    name: iscsi_tcp
+    state: present
+
 - name: Install microk8s by snap
-  become: yes
   snap:
     classic: yes
     name:
       - microk8s
 
 - name: Add the user ubuntu to microk8s
-  become: yes
   user:
     name: ubuntu
     groups: microk8s
@@ -22,36 +45,32 @@
 
 - name: Reset SSH to allow ubuntu int microk8s group.
   meta: reset_connection
-
-- name: Check if microk8s is running.
-  shell: /snap/bin/microk8s status | grep -q "is not running" 
-  register: microk8s_running
-  ignore_errors: True 
-  changed_when: False 
   
 - name: Start microk8s
   shell: /snap/bin/microk8s start 
 
+- name: Wait for microk8s
+  shell: /snap/bin/microk8s status --wait-ready 
+
 - name: Enable Helm v3
   shell: /snap/bin/microk8s enable helm3 
-  
+  when: worker is undefined
+
 - name: Enable kube dns.
   shell: /snap/bin/microk8s enable dns 
+  when: worker is undefined
   
-- name: Enable iscsi (needed for OpenEBS)
-  ansible.builtin.systemd:
-    name: iscsid.service
-    enabled: yes
-    state: restarted
-
 - name: Enable OpenEBS
   shell: /snap/bin/microk8s enable openebs
+  when: worker is undefined
   
 - name: Enable MetalLB
   shell: /snap/bin/microk8s enable metallb "{{ lb_ip_range }}"
+  when: worker is undefined
   
 - name: Enable Ingress
   shell: /snap/bin/microk8s enable ingress 
+  when: worker is undefined
 
 - name: Allow traffic from microk8s cni0 interface
   ufw:
@@ -75,6 +94,8 @@
   raw: '/snap/bin/microk8s config'
   register: microk8s_secret
   changed_when: False
+  when: worker is undefined
 
 - name: Save the kubectl config file locally. 
   local_action: copy content={{ microk8s_secret.stdout }} dest=roles/admins/secrets/kube-config-{{ inventory_hostname }}
+  when: worker is undefined

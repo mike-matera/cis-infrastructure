@@ -54,13 +54,14 @@ hosts:
     - 172.30.5.43
     - 2607:f380:80f:f425::229
   
+  # Allocated to student-cluster
   jupyter:
     - 207.62.187.230
     - 172.30.5.230
     - 2607:f380:80f:f425::230
 
-  # 231
-  # 232 
+  # 231 - Allocated to student-cluster
+  # 232 - Allocated to student-cluster
 
   jeff:
     - 207.62.187.233

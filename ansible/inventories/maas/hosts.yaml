@@ -6,25 +6,24 @@ all:
       primary_interface: cisnet
       device_ssd: /dev/sdc,/dev/sdd
       device_hdd: /dev/sdg,/dev/sdh
-      #vg_disk_pool_size: 900
-      #vg_disk_home_size: 200
     supermicro-1:
-      ansible_host: 192.168.0.131
+      ansible_host: supermicro-1.maas
+      ansible_user: ubuntu 
       primary_interface: cisnet
       device_ssd: /dev/sda 
       device_hdd: /dev/sdb 
-      vg_disk_pool_size: 500
-      vg_disk_home_size: 400
     supermicro-2:
-      ansible_host: 192.168.0.132
+      ansible_host: supermicro-2.maas
+      ansible_user: ubuntu 
       primary_interface: cisnet
+      device_ssd: /dev/sda 
+      device_hdd: /dev/sdb 
     supermicro-3:
-      ansible_host: 192.168.0.133
+      ansible_host: supermicro-3.maas
+      ansible_user: ubuntu 
       primary_interface: cisnet
-      device_ssd: /dev/sda
-      device_hdd: /dev/sdb
-      vg_disk_pool_size: 500
-      vg_disk_home_size: 400
+      device_ssd: /dev/sda 
+      device_hdd: /dev/sdb 
     dell-r620-1:
       ansible_host: 192.168.0.134
       primary_interface: cisnet
@@ -93,3 +92,9 @@ all:
           allowHttps: allow #{rule:allow,deny,limit,reject}
           denyPort53: deny #{rule:allow,deny,limit,reject}
         dell-r610-3:
+    student-cluster:
+      hosts:
+        dell-r630-1:
+        supermicro-1:
+        supermicro-2:
+        supermicro-3:
