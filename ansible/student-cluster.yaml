@@ -105,3 +105,29 @@
         joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
   tags:
     - cluster
+
+- hosts: student-cluster 
+  name: Apply firewall configuration 
+  become: yes 
+  tags:
+    - firewall 
+  tasks:
+    - name: Rate limit SSH
+      community.general.ufw:
+        rule: limit
+        port: ssh
+        proto: tcp
+
+    - name: Allow OpenSSH
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+  
+    - name: Allow all traffic from the server network.
+      community.general.ufw:
+        rule: allow
+        src: 172.30.5.0/24
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
