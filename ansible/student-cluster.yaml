@@ -23,7 +23,7 @@
   roles:
     - role: microk8s 
       vars:
-        lb_ip_range: 172.30.5.240/29,172.30.5.230-172.30.5.232
+        lb_ip_range: 172.30.5.240/29,172.30.5.230-172.30.5.232,192.168.0.50-192.168.0.100
   tags:
     - microk8s
 
@@ -127,6 +127,11 @@
       community.general.ufw:
         rule: allow
         src: 172.30.5.0/24
+
+    - name: Allow all traffic from the maas network.
+      community.general.ufw:
+        rule: allow
+        src: 192.168.0.0/24
 
     - name: Enable UFW
       community.general.ufw:

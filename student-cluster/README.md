@@ -42,13 +42,19 @@ This storage class should be the default, it's slower but resilient across all t
 kubectl apply -f resilient-storageclass.yaml 
 ```
 
-## Other Storage Classes 
+## Monitoring 
 
-This configuration came from the original Jupyter demonstration. It doesn't work yet.
+Assuming that `microk8s enable dashboard` has been run, create a service account binding. This gives dashboard root permissions:
 
 ```
-# DO NOT USE
-# kubectl apply -f local-ssd-storageclass.yaml 
+kubectl -n kube-system delete clusterrolebinding/kubernetes-dashboard
+kubectl apply -f dashboard-rolebinding.yaml
 ```
 
-Now the cluster should be ready to use!
+Now get the auth token so you can log into the admin site: NOTE: The secret name will change.
+
+```
+kubectl get serviceaccounts kubernetes-dashboard -n kube-system -o yaml
+kubectl -n kube-system get secret/kubernetes-dashboard-token-swstt -o yaml
+```
+

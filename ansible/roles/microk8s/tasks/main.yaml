@@ -72,17 +72,42 @@
   shell: /snap/bin/microk8s enable ingress 
   when: worker is undefined
 
+- name: Enable RBAC
+  shell: /snap/bin/microk8s enable rbac
+  when: worker is undefined
+
+- name: Enable RBAC
+  shell: /snap/bin/microk8s enable dashboard 
+  when: worker is undefined
+
 - name: Allow traffic from microk8s cni0 interface
   ufw:
     rule: allow
     interface: cni0
-    direction: in
-  
+    direction: in 
+
 - name: Allow traffic from microk8s cni0 interface
   ufw:
     rule: allow
     interface: cni0
     direction: out
+
+- name: Allow traffic from microk8s vxlan.calico interface
+  ufw:
+    rule: allow
+    interface: vxlan.calico
+    direction: in 
+
+- name: Allow traffic from microk8s vxlan.calico interface
+  ufw:
+    rule: allow
+    interface: vxlan.calico
+    direction: out
+
+- name: Allow all traffic from the maas network.
+  community.general.ufw:
+    rule: allow
+    src: 192.168.0.0/24
 
 - name: Allow forwarding
   ufw:
