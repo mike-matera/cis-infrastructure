@@ -1,4 +1,4 @@
-# Install Clustering Storage on the Student Application Cluster
+# BROKEN: Install Clustering Storage on the Student Application Cluster
 
 Using OpenEBS and cStor. Instructions derived from:
 
@@ -51,10 +51,22 @@ kubectl -n kube-system delete clusterrolebinding/kubernetes-dashboard
 kubectl apply -f dashboard-rolebinding.yaml
 ```
 
+Get just the decoded token:
+
+```
+kubectl -n kube-system get secret/kubernetes-dashboard-token-swstt -o 'jsonpath={.data.token}' | base64 -d ; echo ""
+```
+
 Now get the auth token so you can log into the admin site: NOTE: The secret name will change.
 
 ```
 kubectl get serviceaccounts kubernetes-dashboard -n kube-system -o yaml
 kubectl -n kube-system get secret/kubernetes-dashboard-token-swstt -o yaml
+```
+
+Make a tunnel to the dashboard: 
+
+```
+kubectl -n kube-system port-forward svc/kubernetes-dashboard 8080:443
 ```
 
