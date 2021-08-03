@@ -1,3 +1,9 @@
+---
+# 
+# Playbook for the Dell R630-1 and supermicro machines
+#
+# This they are deployed by MAAS and host jupyter
+#
 
 - hosts: student-cluster
   name: Apply networking configuration
@@ -17,7 +23,7 @@
   - name: netplan apply 
     shell: netplan apply
 
-- hosts: supermicro-1 
+- hosts: dell-r630-1 
   name: Install mikcrok8s in the leader configuration 
   become: yes 
   roles:
@@ -27,7 +33,7 @@
   tags:
     - microk8s
 
-- hosts: supermicro-2, supermicro-3, dell-r630-1
+- hosts: supermicro-1, supermicro-2, supermicro-3
   name: Install mikcrok8s in the worker configuration
   become: yes 
   roles:
@@ -36,75 +42,6 @@
         worker: true
   tags:
     - microk8s
-
-## 
-# Join between supermicro-1 and 2
-#
-- hosts: supermicro-1
-  name: Get a join key. 
-  become: yes 
-  roles:
-    - role: microk8s-add-node
-      vars:
-        leader: true
-  tags:
-    - cluster
-
-- hosts: supermicro-2
-  name: Join supermicro-2
-  become: yes 
-  roles:
-    - role: microk8s-add-node
-      vars:
-        joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
-  tags:
-    - cluster
-        
-## 
-# Join between supermicro-1 and 3
-#
-- hosts: supermicro-1
-  name: Get a join key. 
-  become: yes 
-  roles:
-    - role: microk8s-add-node
-      vars:
-        leader: true
-  tags:
-    - cluster
-
-- hosts: supermicro-3
-  name: Join supermicro-3
-  become: yes 
-  roles:
-    - role: microk8s-add-node
-      vars:
-        joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
-  tags:
-    - cluster
-        
-## 
-# Join between supermicro-1 and dell-r630-1
-#
-- hosts: supermicro-1
-  name: Get a join key. 
-  become: yes 
-  roles:
-    - role: microk8s-add-node
-      vars:
-        leader: true
-  tags:
-    - cluster
-
-- hosts: dell-r630-1
-  name: Join dell-r630-1
-  become: yes 
-  roles:
-    - role: microk8s-add-node
-      vars:
-        joincmd: "{{ hostvars['supermicro-1']['microk8s_join_key'].stdout }}"
-  tags:
-    - cluster
 
 - hosts: student-cluster 
   name: Apply firewall configuration 
@@ -136,3 +73,73 @@
     - name: Enable UFW
       community.general.ufw:
         state: enabled
+
+## 
+# Join between supermicro-1 and 2
+#
+- hosts: dell-r630-1 
+  name: Get a join key. 
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        leader: true
+  tags:
+    - cluster
+
+- hosts: supermicro-2
+  name: Join supermicro-2
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        joincmd: "{{ hostvars['dell-r630-1']['microk8s_join_key'].stdout }}"
+  tags:
+    - cluster
+        
+## 
+# Join between supermicro-1 and 3
+#
+- hosts: dell-r630-1 
+  name: Get a join key. 
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        leader: true
+  tags:
+    - cluster
+
+- hosts: supermicro-3
+  name: Join supermicro-3
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        joincmd: "{{ hostvars['dell-r630-1']['microk8s_join_key'].stdout }}"
+  tags:
+    - cluster
+        
+## 
+# Join between supermicro-1 and dell-r630-1
+#
+- hosts: dell-r630-1 
+  name: Get a join key. 
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        leader: true
+  tags:
+    - cluster
+
+- hosts: supermicro-1
+  name: Join supermicro-1
+  become: yes 
+  roles:
+    - role: microk8s-add-node
+      vars:
+        joincmd: "{{ hostvars['dell-r630-1']['microk8s_join_key'].stdout }}"
+  tags:
+    - cluster
+

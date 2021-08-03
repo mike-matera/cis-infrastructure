@@ -2,7 +2,7 @@
 # 
 # Playbook for the Dell R630-1 Machine
 #
-# This machine is deployed by MAAS and hosts jupyter
+# This machine is now clustered.
 #
 
 - hosts: dell-r630-1
