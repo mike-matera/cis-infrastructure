@@ -1,0 +1,107 @@
+hub:
+  config:
+    Authenticator:
+      admin_users:
+        - mmatera00
+        - mmatera01
+        - mmatera02
+        - mmatera03
+        - mmatera04
+        - mmatera05
+        - mmatera06
+        - mmatera07
+        - mmatera08
+        - mmatera09
+
+        - mmatera10
+        - mmatera11
+        - mmatera12
+        - mmatera13
+        - mmatera14
+        - mmatera15
+        - mmatera16
+        - mmatera17
+        - mmatera18
+        - mmatera19
+
+        - mmatera20
+        - mmatera21
+        - mmatera22
+        - mmatera23
+        - mmatera24
+        - mmatera25
+        - mmatera26
+        - mmatera27
+        - mmatera28
+        - mmatera29
+
+        - mmatera30
+        - mmatera31
+        - mmatera32
+        - mmatera33
+        - mmatera34
+        - mmatera35
+        - mmatera36
+        - mmatera37
+        - mmatera38
+        - mmatera39
+
+        - mmatera40
+        - mmatera41
+        - mmatera42
+        - mmatera43
+        - mmatera44
+        - mmatera45
+        - mmatera46
+        - mmatera47
+        - mmatera48
+        - mmatera49
+
+        - mmatera50
+        - mmatera51
+        - mmatera52
+        - mmatera53
+        - mmatera54
+        - mmatera55
+        - mmatera56
+        - mmatera57
+        - mmatera58
+        - mmatera59
+
+        - mmatera60
+        - mmatera61
+        - mmatera62
+        - mmatera63
+        - mmatera64
+        - mmatera65
+        - mmatera66
+        - mmatera67
+        - mmatera68
+        - mmatera69
+
+        - mmatera70
+        - mmatera71
+        - mmatera72
+        - mmatera73
+        - mmatera74
+        - mmatera75
+        - mmatera76
+        - mmatera77
+        - mmatera78
+        - mmatera79
+
+        - mmatera80
+        - mmatera81
+        - mmatera82
+        - mmatera83
+        - mmatera84
+        - mmatera85
+        - mmatera86
+        - mmatera87
+        - mmatera88
+        - mmatera89
+
+    DummyAuthenticator:
+      password: forkfork
+    JupyterHub:
+      authenticator_class: dummy
