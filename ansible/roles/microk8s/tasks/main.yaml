@@ -52,6 +52,10 @@
 - name: Wait for microk8s
   shell: /snap/bin/microk8s status --wait-ready 
 
+- name: Enable RBAC
+  shell: /snap/bin/microk8s enable rbac
+  when: worker is undefined
+
 - name: Enable Helm v3
   shell: /snap/bin/microk8s enable helm3 
   when: worker is undefined
@@ -72,11 +76,7 @@
   shell: /snap/bin/microk8s enable ingress 
   when: worker is undefined
 
-- name: Enable RBAC
-  shell: /snap/bin/microk8s enable rbac
-  when: worker is undefined
-
-- name: Enable RBAC
+- name: Enable dashboard
   shell: /snap/bin/microk8s enable dashboard 
   when: worker is undefined
 
