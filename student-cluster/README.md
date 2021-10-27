@@ -70,3 +70,20 @@ Make a tunnel to the dashboard:
 kubectl -n kube-system port-forward svc/kubernetes-dashboard 8080:443
 ```
 
+## EFK (WIP)
+
+This cluster badly needs monitoring. This work in progress will enable the EFK stack so that I can consolidate logging and monitoiring. There is a microk8s addon: 
+
+https://microk8s.io/docs/addon-fluentd
+
+Enable the add-on:
+
+```
+microk8s enable fluentd
+```
+
+Access the dashboard: 
+
+```
+kubectl port-forward -n kube-system service/kibana-logging 8080:5601
+```
