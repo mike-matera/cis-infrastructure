@@ -1,0 +1,18 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: volume-debugger
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: supermicro-1 
+  volumes:
+    - name: volume-to-debug
+      persistentVolumeClaim:
+       claimName: claim-gimontan-40cabrillo-2eedu
+  containers:
+    - name: debugger
+      image: busybox
+      command: ['sleep', '3600']
+      volumeMounts:
+        - mountPath: "/data"
+          name: volume-to-debug
