@@ -11,4 +11,4 @@ parameters:
   # cstorPoolCluster should have the name of the CSPC
   cstorPoolCluster: supermicro-ssd
   # replicaCount should be <= no. of CSPI
-  replicaCount: "3"
+  replicaCount: "2"
