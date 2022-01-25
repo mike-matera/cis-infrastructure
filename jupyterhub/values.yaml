@@ -21,7 +21,7 @@ singleuser:
     kubernetes.io/hostname: dell-r630-1
   image:
     name: ghcr.io/mike-matera/python-for-everyone
-    tag: "a1b901039cd8"
+    tag: "76054b35e10b"
   defaultUrl: "/lab"
   memory:
     limit: 4G
@@ -36,7 +36,7 @@ singleuser:
           - "sh"
           - "-c"
           - >
-            gitpuller https://github.com/mike-matera/python-for-everyone release-fa21 cis-15;
+            gitpuller https://github.com/mike-matera/python-for-everyone release-sp22 cis-15;
             ln -sf cis-15/Packages ~/Packages;
             
   extraFiles:
