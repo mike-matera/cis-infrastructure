@@ -5,16 +5,16 @@ network:
 
   vlans:
     vlan187: 
-      link: {{ primary_interface }}
+      link: "{{ primary_interface }}"
       id: 187
     vlan425: 
-      link: {{ primary_interface }}
+      link: "{{ primary_interface }}"
       id: 425
     vlan828: 
-      link: {{ primary_interface }}
+      link: "{{ primary_interface }}"
       id: 828
     vlan829: 
-      link: {{ primary_interface }}
+      link: "{{ primary_interface }}"
       id: 829
     vlan830: 
       link: {{ primary_interface }}
