@@ -1,0 +1,47 @@
+
+- hosts: all 
+  name: Configure networking 
+  roles:
+    - admins:
+      role: ../ansible/roles/admins 
+      vars:
+        user: mmatera
+        gitHubID: mike-matera 
+    - netplan:
+      role: ../ansible/roles/netplan 
+      vars:
+        primary_interface: cisnet
+        
+- hosts: followers
+  name: Setup microk8s clustering on kube1
+  tasks:
+    - name: Check if the join file exists.
+      stat: 
+        path: /root/joined
+      register: do_join
+
+    - name: Get leader to generate a key for me.
+      ansible.builtin.shell: 
+        cmd: ssh -o "StrictHostKeyChecking=no" root@leader /snap/bin/microk8s add-node | perl -ne 's/ microk8s join (.*)/print($1);/e;' > /root/microk8s.key
+        creates: /root/microk8s.key 
+      when: do_join.stat.exists == false
+
+    - name: Get the key 
+      ansible.builtin.slurp:
+        src: /root/microk8s.key
+      register: microk8s_key
+
+    - name: Print the register
+      debug: 
+        msg: Join key is {{ microk8s_key['content'] | b64decode }}
+
+    - name: Make me a follwer node.
+      shell: |
+        /snap/bin/microk8s join {{ microk8s_key['content'] | b64decode }} 
+      when: do_join.stat.exists == false
+
+    - name: Touch the lock file.
+      ansible.builtin.file:
+        path: /root/joined
+        state: touch
+      when: do_join.stat.exists == false

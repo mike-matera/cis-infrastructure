@@ -1,0 +1,10 @@
+all:
+  hosts:
+    proliant-1.maas:
+      ansible_user: ubuntu 
+    proliant-2.maas:
+      ansible_user: ubuntu 
+    proliant-3.maas:
+      ansible_user: ubuntu 
+    proliant-4.maas:
+      ansible_user: ubuntu 
