@@ -5,53 +5,46 @@
 #
 
 - name: Enable the firewall
-  become: yes
+  become: true
   community.general.ufw:
     state: enabled
     policy: "{{ policy }}"
 
 - name: Set logging
-  become: yes
+  become: true
   community.general.ufw:
-    logging: "{{logging}}"
-  
+    logging: "{{ logging }}"
   
 - name: Connection rate limiting
-  become: yes
+  become: true
   community.general.ufw:
     rule: "{{ rateLimiting }}"
     port: ssh
     proto: tcp
 
 - name: Allow SSH
-  become: yes
+  become: true
   community.general.ufw:
     rule: "{{ allowSSH }}"
     name: OpenSSH
 
 - name: Delete OpenSSH rule
-  become: yes
+  become: true
   community.general.ufw:
     rule: allow
     name: OpenSSH
     delete: "{{ deleteSSH }}"
 
 - name: Allow HTTP
-  become: yes
+  become: true
   community.general.ufw:
     rule: "{{ allowHttp }}"
     port: '80'
     proto: tcp
 
 - name: Allow HTTPS
-  become: yes
+  become: true
   community.general.ufw:
     rule: "{{ allowHttps }}"
     port: '443'
     proto: tcp
-
-- name: Deny all access to port 53
-  become: yes
-  community.general.ufw:
-    rule: "{{ denyPort53 }}"
-    port: '53'

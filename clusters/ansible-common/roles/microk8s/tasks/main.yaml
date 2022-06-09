@@ -31,6 +31,26 @@
     name: iscsi_tcp
     state: present
 
+- name: Enable Hugepages (Needed by Mayastor)
+  ansible.posix.sysctl:
+    name: vm.nr_hugepages
+    value: '1024'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Create the Mayastor config file 
+  blockinfile:
+    path: /etc/modules-load.d/microk8s-mayastor.conf
+    block: |
+      nvme-tcp 
+    create: yes
+
+- name: Load the nvme-tcp module.
+  modprobe:
+    name: nvme-tcp
+    state: present
+
 - name: Install microk8s by snap
   snap:
     classic: yes
@@ -51,34 +71,6 @@
 
 - name: Wait for microk8s
   shell: /snap/bin/microk8s status --wait-ready 
-
-- name: Enable RBAC
-  shell: /snap/bin/microk8s enable rbac
-  when: worker is undefined
-
-- name: Enable Helm v3
-  shell: /snap/bin/microk8s enable helm3 
-  when: worker is undefined
-
-- name: Enable kube dns.
-  shell: /snap/bin/microk8s enable dns 
-  when: worker is undefined
-  
-- name: Enable OpenEBS
-  shell: /snap/bin/microk8s enable openebs
-  when: worker is undefined
-  
-- name: Enable MetalLB
-  shell: /snap/bin/microk8s enable metallb "{{ lb_ip_range }}"
-  when: worker is undefined
-  
-- name: Enable Ingress
-  shell: /snap/bin/microk8s enable ingress 
-  when: worker is undefined
-
-- name: Enable dashboard
-  shell: /snap/bin/microk8s enable dashboard 
-  when: worker is undefined
 
 - name: Allow traffic from microk8s cni0 interface
   ufw:
@@ -109,6 +101,11 @@
     rule: allow
     src: 192.168.0.0/24
 
+- name: Allow all traffic from the server network.
+  community.general.ufw:
+    rule: allow
+    src: 172.30.5.0/24
+
 - name: Allow forwarding
   ufw:
     rule: allow
@@ -119,8 +116,6 @@
   raw: '/snap/bin/microk8s config'
   register: microk8s_secret
   changed_when: False
-  when: worker is undefined
 
 - name: Save the kubectl config file locally. 
-  local_action: copy content={{ microk8s_secret.stdout }} dest=roles/admins/secrets/kube-config-{{ inventory_hostname }}
-  when: worker is undefined
+  local_action: copy content={{ microk8s_secret.stdout }} dest=kube-config-{{ inventory_hostname }}

@@ -2,9 +2,33 @@ all:
   hosts:
     proliant-1.maas:
       ansible_user: ubuntu 
+      localnetconfig: |
+        network:
+          version: 2
+          bridges:
+            server:
+              addresses: [172.30.5.90/24]
     proliant-2.maas:
       ansible_user: ubuntu 
+      localnetconfig: |
+        network:
+          version: 2
+          bridges:
+            server:
+              addresses: [172.30.5.91/24]
     proliant-3.maas:
       ansible_user: ubuntu 
+      localnetconfig: |
+        network:
+          version: 2
+          bridges:
+            server:
+              addresses: [172.30.5.92/24]
     proliant-4.maas:
       ansible_user: ubuntu 
+      localnetconfig: |
+        network:
+          version: 2
+          bridges:
+            server:
+              addresses: [172.30.5.93/24]

@@ -2,6 +2,9 @@
 - name: netplan apply 
   become: yes
   shell: netplan apply
+- name: netplan apply reboot
+  become: yes
+  shell: netplan apply
   notify: reboot after netplan apply 
 - name: reboot after netplan apply
   become: yes

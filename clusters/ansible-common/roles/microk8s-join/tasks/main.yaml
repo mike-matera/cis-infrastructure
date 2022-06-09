@@ -1,0 +1,31 @@
+# 
+# Join a node to the leader.
+#
+
+- name: Check if the join file exists.
+  stat: 
+    path: /root/microk8s-joined
+  register: do_join
+
+- name: Get leader to generate a key for me.
+  become: false
+  local_action:
+    module: ansible.builtin.shell ssh -o "StrictHostKeyChecking=no" {{ leader_login }}  /snap/bin/microk8s add-node |  perl -ne 's/microk8s join (\d+\.\d+\.\d+\.\d+:\S+)\s*--worker\s*$/print($1);/es;'
+  when: do_join.stat.exists == false
+  register: microk8s_key
+
+- name: Print the register
+  debug: 
+    msg: Join key is {{ microk8s_key.stdout }}
+  when: do_join.stat.exists == false
+
+- name: Make me a follower node.
+  shell: |
+    /snap/bin/microk8s join {{ microk8s_key.stdout }} 
+  when: do_join.stat.exists == false
+
+- name: Touch the lock file.
+  ansible.builtin.file:
+    path: /root/microk8s-joined
+    state: touch
+  when: do_join.stat.exists == false

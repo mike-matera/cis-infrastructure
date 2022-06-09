@@ -5,7 +5,7 @@
 #
 
 - name: Add the user "{{ user }}"
-  become: yes
+  become: true
   user:
     name: "{{ user }}"
     shell: /bin/bash
@@ -14,23 +14,14 @@
     append: yes
 
 - name: Add keys for "{{ user }}""
-  become: yes
+  become: true
   authorized_key:
     user: "{{ user }}"
     state: present
     key: "https://github.com/{{ gitHubID }}.keys"
 
-- name: Create kubernetes directory
-  become: yes
-  file:
-    path: "/home/{{ user }}/.kube"
-    state: directory
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    mode: '0700'
-
 - name: Add the admin to passwordless SUDO 
-  become: yes
+  become: true
   blockinfile: 
     path: /etc/sudoers.d/90-cloud-init-users
     block: |

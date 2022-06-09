@@ -16,7 +16,7 @@
 #
 
 - name: Add CIS Networking Bridge Configuration
-  become: yes
+  become: true
   template:
     src: files/70-cis-bridge.yaml
     dest: /etc/netplan
@@ -24,4 +24,14 @@
     group: root
     mode: u=rw,g=r,o=r
   notify: 
-    - netplan apply
+    - netplan apply reboot
+
+- name: Add host-specific configuration 
+  become: true
+  blockinfile: 
+    path: /etc/netplan/99-host-config.yaml
+    block: "{{ localnetconfig }}"
+    create: yes
+  when: localnetconfig is defined
+  notify: 
+    - netplan apply 
