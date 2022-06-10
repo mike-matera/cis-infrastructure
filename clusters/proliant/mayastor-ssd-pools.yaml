@@ -1,0 +1,36 @@
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: proliant-1-sdb
+  namespace: mayastor
+spec:
+  node: proliant-1
+  disks: ["/dev/sdb"]
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: proliant-2-sdb
+  namespace: mayastor
+spec:
+  node: proliant-2
+  disks: ["/dev/sdb"]
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: proliant-3-sdb
+  namespace: mayastor
+spec:
+  node: proliant-3
+  disks: ["/dev/sdb"]
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: proliant-4-sdb
+  namespace: mayastor
+spec:
+  node: proliant-4
+  disks: ["/dev/sdb"]

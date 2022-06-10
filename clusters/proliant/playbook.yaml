@@ -78,7 +78,7 @@
     - name: Enable kube dns.
       shell: /snap/bin/microk8s enable dns 
     - name: Enable MetalLB
-      shell: /snap/bin/microk8s enable metallb:172.30.5.240-172.30.5.247
+      shell: /snap/bin/microk8s enable metallb:172.30.5.100-172.30.5.150,172.30.5.240-172.30.5.254
     - name: Enable Ingress
       shell: /snap/bin/microk8s enable ingress 
     - name: Enable dashboard
