@@ -4,9 +4,6 @@
 
 # Let's Encrypt is built into JupyterHub
 proxy:
-  chp:
-    nodeSelector:
-      kubernetes.io/hostname: dell-r630-1
   https:
     enabled: true
     hosts:
@@ -14,11 +11,9 @@ proxy:
     letsencrypt:
       contactEmail: michael.matera@cabrillo.edu
   service:
-    loadBalancerIP: 172.30.5.230
+    loadBalancerIP: 172.30.5.240
   
 singleuser:
-  nodeSelector:
-    kubernetes.io/hostname: dell-r630-1
   image:
     name: ghcr.io/mike-matera/python-for-everyone
     tag: "76054b35e10b"

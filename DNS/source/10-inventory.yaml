@@ -54,12 +54,7 @@ hosts:
     - 172.30.5.229
     - 2607:f380:80f:f425::229
   
-  # Allocated to student-cluster
-  jupyter:
-    - 207.62.187.230
-    - 172.30.5.230
-    - 2607:f380:80f:f425::230
-
+  # 230 - Allocated to student-cluster
   # 231 - Allocated to student-cluster
   # 232 - Allocated to student-cluster
 
@@ -103,11 +98,14 @@ hosts:
     - 172.30.5.239
     - 2607:f380:80f:f425::239
 
-  # 240 - 247 (172.30.5.240/29)
-  # 248 
-  # 249 
-  # 250 
-  # 251 
+  ######
+  # The new mega cluster. 
+  # 240 - 254
+  #
+
+  jupyter:
+    - 207.62.187.240
+    - 172.30.5.240
 
   ns1:
     - 207.62.187.252
@@ -116,6 +114,9 @@ hosts:
   ns2:
     - 207.62.187.253
     - 172.30.5.102
+
+  # 
+  ######
 
   vc-infra:
     - 172.30.5.32
