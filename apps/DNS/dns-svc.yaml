@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cis-dns-internal-a
+  namespace: cis-dns
+  labels:
+    app: cis-dns-internal
+spec:
+  selector:
+    app: cis-dns-internal
+  ports:
+    - name: dns
+      port: 53
+      protocol: UDP 
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.101
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cis-dns-internal-b
+  namespace: cis-dns
+  labels:
+    app: cis-dns-internal
+spec:
+  selector:
+    app: cis-dns-internal
+  ports:
+    - name: dns
+      port: 53
+      protocol: UDP 
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.102
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cis-dns-external-a
+  namespace: cis-dns
+  labels:
+    app: cis-dns-external
+spec:
+  selector:
+    app: cis-dns-external
+  ports:
+    - name: dns
+      port: 53
+      protocol: UDP 
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.252
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cis-dns-external-b
+  namespace: cis-dns
+  labels:
+    app: cis-dns-external
+spec:
+  selector:
+    app: cis-dns-external
+  ports:
+    - name: dns
+      port: 53
+      protocol: UDP 
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.253
