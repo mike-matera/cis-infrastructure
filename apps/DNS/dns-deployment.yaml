@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: cis-dns-external
-        image: mikematera/cis-dns:2022061003
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061004
         imagePullPolicy: Always
         env:
           - name: DNS_ROLE
@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: cis-dns-internal
-        image: mikematera/cis-dns:2022061003
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061004
         imagePullPolicy: Always
         env:
           - name: DNS_ROLE
