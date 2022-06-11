@@ -71,6 +71,8 @@
   tags:
     - microk8s-config
   tasks:
+    - name: Enable Community add-ons
+      shell: /snap/bin/microk8s enable community
     - name: Enable RBAC
       shell: /snap/bin/microk8s enable rbac
     - name: Enable Helm v3
@@ -85,3 +87,5 @@
       shell: /snap/bin/microk8s enable dashboard 
     - name: Enable Mayastor
       shell: /snap/bin/microk8s enable core/mayastor
+    - name: Enable OpenEBS/cStor
+      shell: /snap/bin/microk8s enable community/openebs

@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ssd-ha-claim
+spec:
+  storageClassName: ssd-ha
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ssd-claim
+spec:
+  storageClassName: ssd
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hdd-ha-claim
+spec:
+  storageClassName: hdd-ha
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hdd-claim
+spec:
+  storageClassName: hdd-ha
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-with-mounts
+spec:
+  volumes:
+    - name: ssd-ha
+      persistentVolumeClaim:
+        claimName: ssd-ha-claim
+    - name: ssd
+      persistentVolumeClaim:
+        claimName: ssd-claim
+    - name: hdd-ha
+      persistentVolumeClaim:
+        claimName: hdd-ha-claim
+    - name: hdd
+      persistentVolumeClaim:
+        claimName: hdd-claim
+  containers:
+    - name: ubuntu
+      image: ubuntu:22.04
+      args:
+        - sleep
+        - "1000000"
+      volumeMounts:
+        - mountPath: "/data/ssd"
+          name: ssd
+        - mountPath: "/data/ssd-ha"
+          name: ssd-ha
+        - mountPath: "/data/hdd"
+          name: hdd
+        - mountPath: "/data/hdd-ha"
+          name: ssd
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"

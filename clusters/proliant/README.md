@@ -44,3 +44,15 @@ NAME               PROVISIONER               RECLAIMPOLICY   VOLUMEBINDINGMODE  
 ssd-ha (default)   io.openebs.csi-mayastor   Delete          WaitForFirstConsumer   false                  2m20s
 ssd                io.openebs.csi-mayastor   Delete          WaitForFirstConsumer   false                  2m20s
 ```
+
+Create the cStore pool with the HDDs:
+
+```console 
+$ kubectl apply -f cstor-disk-pools.yaml
+```
+
+Wait for the containers to start running and create the HDD storage classes. 
+
+```console 
+$ kubectl apply -f cstor-storage-class.yaml
+```

@@ -1,0 +1,42 @@
+apiVersion: cstor.openebs.io/v1
+kind: CStorPoolCluster
+metadata:
+  name: hdd-pool 
+  namespace: openebs
+spec:
+  pools:
+    - nodeSelector:
+        kubernetes.io/hostname: "proliant-1"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-bd63e4fa32cd2e54a778bfbc250f856c"
+          - blockDeviceName: "blockdevice-2706a8c1b1201874fb418a6ee08abcc5"
+      poolConfig:
+        dataRaidGroupType: "stripe"
+
+    - nodeSelector:
+        kubernetes.io/hostname: "proliant-2"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-15520e9f3eb3a107622c1fd13d4ae861"
+          - blockDeviceName: "blockdevice-d3de5b41d6cfa95512f3ffb383620e10"
+      poolConfig:
+        dataRaidGroupType: "stripe"
+
+    - nodeSelector:
+        kubernetes.io/hostname: "proliant-3"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-4d3352b4bc80e4bfe351e1be5d628e07"
+          - blockDeviceName: "blockdevice-b0fc5658b4db63789d84e2daa9c68e2e"
+      poolConfig:
+        dataRaidGroupType: "stripe"
+
+    - nodeSelector:
+        kubernetes.io/hostname: "proliant-4"
+      dataRaidGroups:
+      - blockDevices:
+          - blockDeviceName: "blockdevice-493ca6ac1c6aea2877530960b8e1fdc4"
+          - blockDeviceName: "blockdevice-8a820b14ac2342f62866ba7a0d2d131d"
+      poolConfig:
+        dataRaidGroupType: "stripe"
