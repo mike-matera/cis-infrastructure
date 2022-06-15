@@ -3,4 +3,4 @@ all:
     dell-r620-1.maas:
       ansible_user: ubuntu 
     vpn.cis.cabrillo.edu:
-      ansible_user: ubuntu 
+      ansible_user: mmatera

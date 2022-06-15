@@ -41,3 +41,79 @@
       reload: yes
       sysctl_set: yes
 
+- hosts: vpn.cis.cabrillo.edu 
+  name: Configure networking 
+  become: true
+  tags:
+    - network
+  roles:
+    - firewall:
+      role: ../../ansible-common/roles/firewall 
+      vars:
+        policy: deny 
+        logging: on
+        rateLimiting: limit 
+        allowSSH: allow 
+        deleteSSH: no 
+        allowHttp: deny
+        allowHttps: deny
+  tasks:
+    - name: Allow Wireguard
+      become: true
+      community.general.ufw:
+        rule: allow
+        port: 51820
+        proto: udp
+
+- hosts: vpn.cis.cabrillo.edu
+  name: Setup Wireguard
+  become: true
+  tags:
+    - wireguard 
+  tasks:
+    - name: Install packages
+      apt:
+        update_cache: yes
+        cache_valid_time: 36000
+        pkg:
+          - wireguard
+    - name: Create Wireguard secret key
+      shell: wg genkey | tee /etc/wireguard/private.key && chmod 600 /etc/wireguard/private.key 
+      args:
+        creates: /etc/wireguard/private.key
+    - name: Create Wireguard public key
+      shell: cat /etc/wireguard/private.key | wg pubkey | tee /etc/wireguard/public.key 
+      args:
+        creates: /etc/wireguard/public.key
+    - name: Capture the private private key 
+      shell: cat /etc/wireguard/private.key 
+      register: privatekey
+    - name: Create Wireguard config
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        mode: 0600
+        owner: root
+        group: root
+        create: yes
+        block: | 
+          [Interface]
+          PrivateKey = {{ privatekey.stdout }}
+          Address = 10.8.0.1/24
+          ListenPort = 51820
+          SaveConfig = true
+          PostUp = ufw route allow in on wg0 out on eth0
+          PostUp = iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+          PreDown = ufw route delete allow in on wg0 out on eth0
+          PreDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+    - name: Enable IPv4 Forwarding
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+    - name: Enable and start the service
+      ansible.builtin.systemd:
+        name: wg-quick@wg0
+        state: started
+        enabled: yes
