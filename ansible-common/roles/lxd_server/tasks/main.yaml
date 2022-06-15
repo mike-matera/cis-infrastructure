@@ -1,95 +1,54 @@
 #
-# Create the "{{ userName }}" container in LXD.
+# Create the "{{ lxc_hostname }}" container in LXD.
 #
 # This assumes lxd has been setup according to the lxd role.
 # Home directories will be shared with the host. 
 #
 
-- name: Create "{{ userName }}" home directories.
-  become: yes
+- name: "Create {{ lxc_hostname }} home directories."
+  become: true
   file:
-    path: "/data/homes/{{ userName }}"
+    path: "/data/homes/{{ lxc_hostname }}"
     state: directory
     mode: '0755'
     owner: '1000000'
     group: '1000000'
-    
-- name: Use the ubuntu user configuration from the host
-  become: yes
-  copy:
-    src: /home/ubuntu
-    dest: "/data/homes/{{ userName }}/"
-    remote_src: yes
-    owner: '1001000'
-    group: '1001000'
-
-- name: Create "{{ userName }}" netplan configuration directory.
-  become: yes
-  file:
-    path: "/data/config/{{ userName }}/netplan"
-    state: directory
-    mode: '0755'
-
-- name: Create "{{ userName }}" network configuration.
-  become: yes
-  blockinfile:
-    create: yes
-    path: "/data/config/{{ userName }}/netplan/99-static.yaml"
-    block: "{{ netconfig }}" 
-      
-- name: Create a profile
+   
+- name: "Create the {{ lxc_hostname }} profile."
   community.general.lxd_profile:
-    name: "{{ userName }}"
+    name: "{{ lxc_hostname }}"
     state: present
     config: 
-      user.vendor-data: |
-        #cloud-config
-        users:
-          - name: "{{ user }}"
-            ssh-import-id: "gh:{{ gitHubID }}"
-            shell: /bin/bash
-            sudo: ALL=(ALL) NOPASSWD:ALL
-            groups: admin
-    description: my ansible profile
+      user.network-config: "{{ cloud_init_network }}"
+      user.user-data: "{{ cloud_init_user }}"
+    description: "Profile for {{ lxc_hostname }}"
     devices:
       eth0:
-        name: "{{ nicName }}"
-        hwaddr: "{{ hwaddr }}"
-        nictype: "{{ nictype }}"
-        parent: "{{ parent }}"
+        name: eth0
+        nictype: bridged
+        parent: server
         type: nic
       homes:
         path: /home
-        source: "/data/homes/{{ userName }}"
-        type: disk
-      netplan:
-        path: /etc/netplan
-        source: "/data/config/{{ userName }}/netplan"
+        source: "/data/homes/{{ lxc_hostname }}"
         type: disk
       root:
         path: /
-        pool: default
-        size: "{{ size }}"
+        pool: local
+        size: "{{ rootfs_size }}"
         type: disk
 
 
-- name: Check if "{{ userName }}" exists.
-  shell: lxc list | grep -q "{{ userName }}" 
-  register: container_exists 
-  ignore_errors: True 
-  changed_when: False 
- 
-- name: Create "{{ userName }}" 
-  shell:
-    cmd: | 
-      lxc launch "{{ distro }}" "{{ userName }}" -p "{{ userName }}" -c security.nesting=true
-  when: container_exists.rc == 1
+- name: "Create the {{ lxc_hostname }} container."
+  community.general.lxd_container:
+    name: "{{ lxc_hostname }}"
+    ignore_volatile_options: true
+    state: started
+    source:
+      type: image
+      mode: pull
+      server: https://cloud-images.ubuntu.com/releases
+      protocol: simplestreams 
+      alias: "{{ distro }}"
+    profiles: [ "{{ lxc_hostname }}" ]
 
-- name: Set max user watches so vscode works well on "{{ userName }}".
-  become: yes
-  sysctl:
-    name: fs.inotify.max_user_watches
-    value: '524288'
-    state: present
-    reload: yes
-    sysctl_set: yes

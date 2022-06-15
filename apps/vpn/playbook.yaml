@@ -1,0 +1,43 @@
+
+- hosts: dell-r620-1.maas
+  name: Create the VPN container.
+  become: true
+  tags:
+    - container
+  roles:
+    - lxd_server:
+      role: ../../ansible-common/roles/lxd_server 
+      vars:
+        lxc_hostname: vpn
+        distro: "22.04"
+        rootfs_size: 256GB
+        cloud_init_network: |
+          version: 2
+          ethernets:
+            eth0:
+              addresses:
+                - 172.30.5.226/24
+                - 2607:f380:80f:f425::226/64
+              gateway4: 172.30.5.1
+              nameservers:
+                search: [cis.cabrillo.edu]
+                addresses: [172.30.5.101, 172.30.5.102]
+        cloud_init_user: |
+          #cloud-config
+          users:
+            - name: mmatera
+              ssh_import_id: gh:mike-matera
+              shell: /bin/bash
+              sudo: ALL=(ALL) NOPASSWD:ALL
+              groups: admin
+
+  tasks:
+  - name: Set max user watches so vscode works well on "{{ hostname }}".
+    become: true
+    sysctl:
+      name: fs.inotify.max_user_watches
+      value: '524288'
+      state: present
+      reload: yes
+      sysctl_set: yes
+
