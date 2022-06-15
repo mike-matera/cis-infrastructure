@@ -1,118 +1,34 @@
 #
 # This role configures LXD on a bare metal host. 
 #
-# This role assumes LVM is configured with at least these
-# volume groups:
-#
-# /dev/vg-ssd - Volume group with SSD space
-# /dev/vg-disk - Volume group with HDD space
-#
-# It will create the mounts:
-#
-# /data/homes (disk vg) - Home directories inside containers.
-#
-# It will create the directories: 
-#
-# /data/homes/ubuntu - Copy of the host's /home/ubuntu with SSH keys
-# /data/config - Shared configuration for containers. 
-#
-# After this role xld will be installed and initialized and the ubuntu
-# user will be placed into the lxd group.
-#
-# The host must have the following variables:
-#
-# vg_disk_pool_size: Size of the disk area in GB 
-# vg_disk_home_size: Size of home directories in GB 
-
-- name: Create a thin pool for application data. 
-  become: yes
-  lvol:
-    vg: vg-disk
-    size: "{{ vg_disk_pool_size }}g"
-    thinpool: application-pool
-
-- name: Create a volume for home directories.
-  become: yes
-  lvol:
-    vg: vg-disk
-    lv: home-data
-    thinpool: application-pool
-    size: "{{ vg_disk_home_size }}g"
-
-- name: Create a ext4 filesystem for home directories.
-  become: yes
-  filesystem:
-    fstype: ext4
-    dev: /dev/vg-disk/home-data
-
-- name: Create the /data/homes directory
-  become: yes
-  file:
-    path: /data/homes
-    state: directory
-    mode: '0755'        
-
-- name: Mount home data directory
-  become: yes
-  mount:
-    path: /data/homes
-    src: /dev/vg-disk/home-data
-    fstype: ext4
-    state: mounted
     
 - name: Install LXD by snap
-  become: yes
+  become: true
   snap:
     name:
       - lxd
 
 - name: remove the LXD package
-  become: yes
+  become: true
   apt:
     name: lxd
     state: absent
     purge: yes 
 
 - name: Remove dependencies that are no longer required
-  become: yes
+  become: true
   apt:
     autoremove: yes
 
-- name: Initialize LXD 
-  become: yes
-  shell: 
-    cmd: /snap/bin/lxd init --preseed
-    stdin: |
-      config: {}
-      networks: []
-      storage_pools: []
-      profiles: []
-      cluster: null
-
-- name: Create the /data/config directory
-  become: yes
-  file:
-    path: /data/config
-    state: directory
-    mode: '0755'
-
-- name: Add the ansible user to lxd
-  become: yes
-  user:
-    name: "{{ ansible_user }}"
-    groups: lxd
-    append: yes
-
-- meta: reset_connection 
-
-- name: Check for the default storage pool.
-  shell: /snap/bin/lxc storage list | grep -q default
-  register: ssd_exists 
+- name: Check if the local storage pool has been configured.
+  shell: lxc storage list | grep -q local 
+  register: do_lxd_init 
   ignore_errors: True 
   changed_when: False 
 
-- name: Add the default storage pool
-  become: yes
-  shell:
-    cmd: /snap/bin/lxc storage create default lvm source=vg-ssd lvm.thinpool_name=lxd-ssd-thinpool lvm.use_thinpool=true
-  when: ssd_exists.rc == 1 
+- name: Initialize LXD 
+  become: true
+  shell: 
+    cmd: /snap/bin/lxd init --preseed
+    stdin: "{{ lxd_preseed }}"
+  when: do_lxd_init.rc == 1

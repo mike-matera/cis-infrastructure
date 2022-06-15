@@ -1,0 +1,72 @@
+
+- hosts: all 
+  name: Configure networking 
+  become: true
+  tags:
+    - network
+  roles:
+    - firewall:
+      role: ../ansible-common/roles/firewall 
+      vars:
+        policy: deny 
+        logging: on
+        rateLimiting: limit 
+        allowSSH: allow 
+        deleteSSH: no 
+        allowHttp: deny
+        allowHttps: deny
+    - admins:
+      role: ../ansible-common/roles/admin
+      vars:
+        user: mmatera
+        gitHubID: mike-matera 
+    - netplan:
+      role: ../ansible-common/roles/netplan 
+      vars:
+        primary_interface: cisnet        
+
+- hosts: dell-r620-1.maas 
+  name: Configure networking 
+  become: true
+  tags:
+    - lxd
+  roles:
+    - lxd:
+      role: ../ansible-common/roles/lxd
+      vars:
+        lxd_preseed: |
+          config:
+            core.https_address: dell-r620-1.maas:8443
+          networks: []
+          storage_pools:
+          - config:
+              source: /dev/sdb
+            description: ""
+            name: local
+            driver: zfs
+          profiles:
+          - config: {}
+            description: ""
+            devices:
+              eth0:
+                name: eth0
+                nictype: bridged
+                parent: server
+                type: nic
+              root:
+                path: /
+                pool: local
+                type: disk
+            name: default
+          projects: []
+          cluster:
+            server_name: dell-r620-1
+            enabled: true
+            member_config: []
+            cluster_address: ""
+            cluster_certificate: ""
+            server_address: ""
+            cluster_password: ""
+            cluster_certificate_path: ""
+            cluster_token: ""
+

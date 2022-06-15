@@ -1,0 +1,4 @@
+all:
+  hosts:
+    dell-r620-1.maas:
+      ansible_user: ubuntu 
