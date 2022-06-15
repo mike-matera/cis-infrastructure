@@ -6,7 +6,7 @@
     - network
   roles:
     - firewall:
-      role: ../ansible-common/roles/firewall 
+      role: ../../ansible-common/roles/firewall 
       vars:
         policy: deny 
         logging: on
@@ -16,12 +16,12 @@
         allowHttp: deny
         allowHttps: deny
     - admins:
-      role: ../ansible-common/roles/admin
+      role: ../../ansible-common/roles/admin
       vars:
         user: mmatera
         gitHubID: mike-matera 
     - netplan:
-      role: ../ansible-common/roles/netplan 
+      role: ../../ansible-common/roles/netplan 
       vars:
         primary_interface: cisnet        
 
@@ -30,7 +30,7 @@
   become: true
   roles:
     - microk8s:
-      role: ../ansible-common/roles/microk8s
+      role: ../../ansible-common/roles/microk8s
 
 - hosts: proliant-2.maas
   name: Join the cluser
@@ -39,7 +39,7 @@
     - join
   roles:
     - microk8s-join:
-      role: ../ansible-common/roles/microk8s-join
+      role: ../../ansible-common/roles/microk8s-join
       vars:
         leader_login: 'ubuntu@proliant-1.maas'
 
@@ -50,7 +50,7 @@
     - join
   roles:
     - microk8s-join:
-      role: ../ansible-common/roles/microk8s-join
+      role: ../../ansible-common/roles/microk8s-join
       vars:
         leader_login: 'ubuntu@proliant-1.maas'
 
@@ -61,7 +61,7 @@
     - join
   roles:
     - microk8s-join:
-      role: ../ansible-common/roles/microk8s-join
+      role: ../../ansible-common/roles/microk8s-join
       vars:
         leader_login: 'ubuntu@proliant-1.maas'
 

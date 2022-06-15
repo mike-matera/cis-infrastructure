@@ -6,7 +6,7 @@
     - network
   roles:
     - firewall:
-      role: ../ansible-common/roles/firewall 
+      role: ../../ansible-common/roles/firewall 
       vars:
         policy: deny 
         logging: on
@@ -16,12 +16,12 @@
         allowHttp: deny
         allowHttps: deny
     - admins:
-      role: ../ansible-common/roles/admin
+      role: ../../ansible-common/roles/admin
       vars:
         user: mmatera
         gitHubID: mike-matera 
     - netplan:
-      role: ../ansible-common/roles/netplan 
+      role: ../../ansible-common/roles/netplan 
       vars:
         primary_interface: cisnet        
 
@@ -32,7 +32,7 @@
     - lxd
   roles:
     - lxd:
-      role: ../ansible-common/roles/lxd
+      role: ../../ansible-common/roles/lxd
       vars:
         lxd_preseed: |
           config:
