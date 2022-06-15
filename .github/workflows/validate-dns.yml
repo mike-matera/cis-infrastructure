@@ -28,7 +28,7 @@ jobs:
     # Runs a single command using the runners shell
     - name: Test DNS using docker-compose
       run: |
-        cd DNS
+        cd apps/DNS/cis-dns
         /bin/sh ./test.sh
   
   build:
@@ -57,7 +57,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./DNS
+          context: ./apps/DNS/cis-dns
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
