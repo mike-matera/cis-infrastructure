@@ -98,16 +98,25 @@
         block: | 
           [Interface]
           PrivateKey = {{ privatekey.stdout }}
-          Address = 10.8.0.1/24
+          Address = 10.8.0.1/24, fda9:5298:444c::1/64
           ListenPort = 51820
-          SaveConfig = true
+          SaveConfig = false
           PostUp = ufw route allow in on wg0 out on eth0
           PostUp = iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+          PostUp = ip6tables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
           PreDown = ufw route delete allow in on wg0 out on eth0
           PreDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+          PreDown = ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
     - name: Enable IPv4 Forwarding
       ansible.posix.sysctl:
         name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+    - name: Enable IPv6 Forwarding
+      ansible.posix.sysctl:
+        name: net.ipv6.conf.all.forwarding
         value: '1'
         sysctl_set: yes
         state: present
@@ -117,3 +126,23 @@
         name: wg-quick@wg0
         state: started
         enabled: yes
+
+- hosts: vpn.cis.cabrillo.edu
+  name: Setup Wireguard Peers
+  become: true
+  tags:
+    - peers 
+  tasks:
+    - name: Create peer configuration.
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        create: no
+        marker: "## {mark} -- Ansible configuration for mmatera-phoenix" 
+        block: |
+          [Peer]
+          PublicKey = FIy/D68RsPbLUTMUx04uas/zZnAsURa7MD8sEbTgDAg=
+          AllowedIPs = 10.8.0.2/32
+    - name: Enable and start the service
+      ansible.builtin.systemd:
+        name: wg-quick@wg0
+        state: restarted
