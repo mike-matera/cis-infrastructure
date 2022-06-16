@@ -22,9 +22,28 @@ spec:
         - name: dns-config
           configMap:
             name: cis-dns
+      initContainers:
+      - name: test-dns
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: DNS_ROLE
+            value: "external"
+        volumeMounts:
+        - name: dns-config
+          mountPath: /cis-dns/source
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+        command: ['sh', '-c', "./test.sh"]
       containers:
       - name: cis-dns-external
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061503
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
         imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
@@ -65,9 +84,28 @@ spec:
         - name: dns-config
           configMap:
             name: cis-dns
+      initContainers:
+      - name: test-dns
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: DNS_ROLE
+            value: "internal"
+        volumeMounts:
+        - name: dns-config
+          mountPath: /cis-dns/source
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+        command: ['sh', '-c', "./test.sh"]
       containers:
       - name: cis-dns-internal
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061503
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
         imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
