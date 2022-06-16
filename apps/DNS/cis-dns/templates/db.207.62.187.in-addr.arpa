@@ -1,5 +1,4 @@
 {{ ttl }}
 {{ soa }}
 {{ ns }}
-
 {{ reverse(hosts=hosts, network='207.62.187.0/24') }}

@@ -55,6 +55,8 @@ hosts:
     - 172.30.5.229
     - 2607:f380:80f:f425::229
   
+  # 230 - 232 
+  
   jeff:
     - 207.62.187.233
     - 172.30.5.233
@@ -96,6 +98,16 @@ hosts:
 #  osticket:
 #    - ec2-3-92-161-73.compute-1.amazonaws.com.
 
-subdomains: {}
+subdomains: 
+  - name: cislab.net. 
+    ns: 
+      - slinky.cis.cabrillo.edu.
+  - name: maas. 
+    ns: 
+      - rack0.cis.cabrillo.edu.
 #  - name: mike
-#    ns1: [34.204.242.206]
+#    ns: 
+#      - 34.204.242.206
+#      - 34.204.242.207
+#      - 2607:db8::1
+#      - 2607:db8::2

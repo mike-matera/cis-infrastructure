@@ -1,11 +1,8 @@
 {{ ttl }}
 {{ soa }}
 {{ ns }}
-
 {{ mx }}
 {{ txt }}
 {{ misc }}
-
 {{ fwd(hosts=hosts, role='external') }}
-
-{{ subdomain(domains=subdomains) }}
+{{ subdomain(domains=subdomains, role='external') }}

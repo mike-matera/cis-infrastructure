@@ -1,6 +1,4 @@
 {{ ttl }}
 {{ soa }}
 {{ ns }}
-
 {{ reverse(hosts=hosts, network='2607:f380:80f:f425::/64') }}
-

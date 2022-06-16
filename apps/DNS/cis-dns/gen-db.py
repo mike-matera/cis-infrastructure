@@ -50,33 +50,37 @@ def fwd(hosts, role):
 	return rval 
 
 
-def subdomain(domains):
-	"""Make glue records.""" 
+def subdomain(domains, role):
+	"""Make NS and glue records.""" 
 	rval = ""
 	if domains is not None:
 		for d in domains:
-			domain = dict(d)
-			name = domain['name']
-			del domain['name']
-			for ns in domain:
-				rval += f"""{name}.cis.cabrillo.edu. IN NS {ns}.{name}.cis.cabrillo.edu.\n"""
-				for addr in domain[ns]:
-					ip = ipaddress.ip_address(addr)
+			if d['name'].endswith('.') and role == 'external':
+				continue
+			for i, ns in enumerate(d['ns']):
+				try:
+					# IP address needs a glue record
+					ip = ipaddress.ip_address(ns)
+					rval += f"""{d['name']} IN NS ns{i+1}.{d['name']}\n"""
 					if ip.version == 4:
-						rval += f"""{ns}.{name}.cis.cabrillo.edu. IN A {ip}\n"""
+						rval += f"""ns{i+1}.{d['name']} IN A {ip}\n"""
 					else:
-						rval += f"""{ns}.{name}.cis.cabrillo.edu. IN AAAA {ip}\n"""
-	
+						rval += f"""ns{i+1}.{d['name']} IN AAAA {ip}\n"""
+				except Exception as e:
+					# Assume the glue record exists
+					rval += f"""{d['name']} IN NS {ns}\n"""
 	return rval 
 
 
 def main():
 	parser = argparse.ArgumentParser(description='Generate zone files from templates')
 	parser.add_argument('--dry-run', action='store_true', help='Print files instead of writing them.')
+	parser.add_argument('path', default="./source", nargs='?', help='The path to the configuration files [default=./source]')
 	args = parser.parse_args()
 
 	inv = {}
-	for source in sorted(glob.glob('source/*.yaml')):
+	path = pathlib.Path(args.path)
+	for source in sorted(path.glob('*.yaml')):
 		print(f"Loading {source}")
 		with open(source) as f:
 			y = yaml.load(f, Loader=yaml.Loader)
