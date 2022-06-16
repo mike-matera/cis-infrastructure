@@ -66,6 +66,23 @@
         proto: udp
 
 - hosts: vpn.cis.cabrillo.edu
+  name: Setup users
+  become: true
+  tags:
+    - users
+  tasks:
+    - name: Add jeff
+      ansible.builtin.user:
+        name: jeff
+        shell: /bin/bash
+    - name: Add key for Jeff.
+      ansible.posix.authorized_key:
+        user: jeff 
+        state: present 
+        key: |
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbiAZd/q7Q/7M5HTvu40a4AgOL/Yt8F1b89kjsyP+/ORy4pr+eKJ/oNzWOfeZRpl1lpBU9MDzYY8RtgAUp+0jTFlA3Blpo8eIUVyif/LUlNdwNIRj7uY2kAsoFbBh2CT3ongg67y52dxjhf1OXxr9donWE8LT7UART/GoiQdsPeiu+ZlTpnreZ9qB2TgIUzYZk/akkExyln3SCk4Oa1kZXbRaEeDON+eyVbkB/Di932XRH6a9+XD2JBVXfaO5y2+A83mRkHE4mVZZD4ccrNtsS/acrC45irLIrNyh93yGdv+shWSylJOuL9XEN2XbqXSIppUhUw9kUJ8Y6FXGC4lJ7
+
+- hosts: vpn.cis.cabrillo.edu
   name: Setup Wireguard
   become: true
   tags:
@@ -142,6 +159,15 @@
           [Peer]
           PublicKey = FIy/D68RsPbLUTMUx04uas/zZnAsURa7MD8sEbTgDAg=
           AllowedIPs = 10.8.0.2/32
+    - name: Create peer configuration.
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        create: no
+        marker: "## {mark} -- Ansible configuration for jeff" 
+        block: |
+          [Peer]
+          PublicKey = OoPIsnqxh9+eyqzNMcA5nTKHwm9Dm5MREpHp/TXF5Ao=
+          AllowedIPs = 10.8.0.3/32
     - name: Enable and start the service
       ansible.builtin.systemd:
         name: wg-quick@wg0
