@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: cis-dns-external
-  replicas: 2
+  replicas: 4
   strategy:
     type: RollingUpdate
   template:
@@ -71,7 +71,7 @@ spec:
   selector:
     matchLabels:
       app: cis-dns-internal
-  replicas: 2
+  replicas: 4
   strategy:
     type: RollingUpdate
   template:
