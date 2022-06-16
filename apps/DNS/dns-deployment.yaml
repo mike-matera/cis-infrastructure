@@ -24,14 +24,15 @@ spec:
             name: cis-dns
       containers:
       - name: cis-dns-external
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061004
-        imagePullPolicy: Always
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061503
+        imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
             value: "external"
         volumeMounts:
         - name: dns-config
           mountPath: /cis-dns/source
+          readOnly: true
         resources:
           requests:
             cpu: 100m
@@ -60,13 +61,21 @@ spec:
         app: cis-dns-internal
       annotations: {}
     spec:
+      volumes:
+        - name: dns-config
+          configMap:
+            name: cis-dns
       containers:
       - name: cis-dns-internal
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061004
-        imagePullPolicy: Always
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061503
+        imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
             value: "internal"
+        volumeMounts:
+        - name: dns-config
+          mountPath: /cis-dns/source
+          readOnly: true
         resources:
           requests:
             cpu: 100m
