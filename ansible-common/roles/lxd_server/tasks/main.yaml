@@ -21,6 +21,7 @@
     config: 
       user.network-config: "{{ cloud_init_network }}"
       user.user-data: "{{ cloud_init_user }}"
+      security.nesting: "true"
     description: "Profile for {{ lxc_hostname }}"
     devices:
       eth0:
