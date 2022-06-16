@@ -32,6 +32,9 @@ misc: |
   jupyter IN CAA 0 issue "letsencrypt.org"
   jupyter IN CAA 0 issuewild "letsencrypt.org"
 
+  @ IN A 207.62.187.226
+  @ IN AAAA 2607:f380:80f:f425::226
+
 hosts:
 
   nocry:

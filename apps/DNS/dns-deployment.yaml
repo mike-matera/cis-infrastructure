@@ -24,7 +24,7 @@ spec:
             name: cis-dns
       initContainers:
       - name: test-dns
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061601
         imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
@@ -43,7 +43,7 @@ spec:
         command: ['sh', '-c', "./test.sh"]
       containers:
       - name: cis-dns-external
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061601
         imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
@@ -86,7 +86,7 @@ spec:
             name: cis-dns
       initContainers:
       - name: test-dns
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061601
         imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
@@ -105,7 +105,7 @@ spec:
         command: ['sh', '-c', "./test.sh"]
       containers:
       - name: cis-dns-internal
-        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061504
+        image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061601
         imagePullPolicy: IfNotPresent
         env:
           - name: DNS_ROLE
