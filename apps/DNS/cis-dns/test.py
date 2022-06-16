@@ -3,11 +3,20 @@ Execute self-tests for DNS containers.
 
 """
 
+import os
 import glob
 import yaml 
 import pydig 
 import unittest
 import ipaddress
+
+if os.environ.get('DNS_ROLE') is None:
+	raise ValueError("You must set $DNS_ROLE")
+
+if os.environ['DNS_ROLE'] == "external":
+	do_external = True 
+else:
+	do_external = False
 
 inv = {}
 for source in sorted(glob.glob('source/*.yaml')):
@@ -27,10 +36,10 @@ class TestDNS(unittest.TestCase):
 		nameservers=['8.8.8.8', '8.8.4.4',],
 	)
 	ext_resolver = pydig.Resolver(
-		nameservers=['external',],
+		nameservers=['localhost',],
 	)
 	int_resolver = pydig.Resolver(
-		nameservers=['internal',],
+		nameservers=['localhost',],
 	)
 
 	def select(self, what):
@@ -67,32 +76,35 @@ class TestDNS(unittest.TestCase):
 
 			if addr.is_private:
 				# Test internal resolution
-				got = self.int_resolver.query(f'{host}.cis.cabrillo.edu', query_type)
-				self.assertGreater(len(got), 0, f"Failed to resolve {host}")	
-				self.assertEqual(str(addr), got[0], "Resolution mismatch {addr} != {got[0]}")
+				if not do_external:
+					got = self.int_resolver.query(f'{host}.cis.cabrillo.edu', query_type)
+					self.assertGreater(len(got), 0, f"Failed to resolve {host}")	
+					self.assertEqual(str(addr), got[0], "Resolution mismatch {addr} != {got[0]}")
+
+					# Test the reverse record 
+					got = self.int_resolver.query(rev_record, 'PTR')
+					self.assertGreater(len(got), 0, f"Failed to reverse {host} {rev_record}")	
+					self.assertEqual(host + '.cis.cabrillo.edu.', got[0], "Reverse resolution mismatch {host} != {got[0]}")
 
 				# External resolution should fail or give an external address 
-				got = self.ext_resolver.query(f'{host}.cis.cabrillo.edu', query_type)
-				if len(got) > 0:
-					self.assertNotEqual(str(addr), got[0], "Resolution mismatch {addr} == {got[0]}")
-
-				# Test the reverse record 
-				got = self.int_resolver.query(rev_record, 'PTR')
-				self.assertGreater(len(got), 0, f"Failed to reverse {host} {rev_record}")	
-				self.assertEqual(host + '.cis.cabrillo.edu.', got[0], "Reverse resolution mismatch {host} != {got[0]}")
+				if do_external:
+					got = self.ext_resolver.query(f'{host}.cis.cabrillo.edu', query_type)
+					if len(got) > 0:
+						self.assertNotEqual(str(addr), got[0], "Resolution mismatch {addr} == {got[0]}")
 
 			else:
-				# Test external resolution
-				got = self.ext_resolver.query(f'{host}.cis.cabrillo.edu', query_type)
-				self.assertGreater(len(got), 0, f"Failed to resolve {host} {addr}")	
-				self.assertEqual(str(addr), got[0], "Resolution mismatch {host} != {got[0]}")
+				if do_external:
+					# Test external resolution
+					got = self.ext_resolver.query(f'{host}.cis.cabrillo.edu', query_type)
+					self.assertGreater(len(got), 0, f"Failed to resolve {host} {addr}")	
+					self.assertEqual(str(addr), got[0], "Resolution mismatch {host} != {got[0]}")
 
-				# Test the reverse record 
-				# Have to mangle this record to match the funky CNAME used in reversing this subnet. 
-				rev_record = rev_record.replace('187.', '224-27.187.')
-				got = self.ext_resolver.query(rev_record, 'PTR')
-				self.assertGreater(len(got), 0, f"Failed to reverse {host} {rev_record}")	
-				self.assertTrue(host + ".cis.cabrillo.edu." in got, f"Reverse resolution mismatch {host} not in {got}")
+					# Test the reverse record 
+					# Have to mangle this record to match the funky CNAME used in reversing this subnet. 
+					rev_record = rev_record.replace('187.', '224-27.187.')
+					got = self.ext_resolver.query(rev_record, 'PTR')
+					self.assertGreater(len(got), 0, f"Failed to reverse {host} {rev_record}")	
+					self.assertTrue(host + ".cis.cabrillo.edu." in got, f"Reverse resolution mismatch {host} not in {got}")
 
 	def test_internal_domains(self):
 		for zone in ["cis.cabrillo.edu", 
@@ -100,15 +112,16 @@ class TestDNS(unittest.TestCase):
 				"0.168.192.in-addr.arpa",
 				"5.2.4.f.f.0.8.0.0.8.3.f.7.0.6.2.ip6.arpa",
 			]:
-			got = self.int_resolver.query(zone, 'SOA')
-			self.assertEqual(len(got), 1, f"Failed to resolve zone {zone}")	
+			if not do_external:
+				got = self.int_resolver.query(zone, 'SOA')
+				self.assertEqual(len(got), 1, f"Failed to resolve zone {zone}")	
 
-			# Test nameservers
-			got = self.int_resolver.query(zone, 'NS')
-			self.assertEqual(len(got), 2, f"Didn't get two nameservers in zone {zone}")	
-			got.sort()
-			self.assertEqual(got[0], 'ns1.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[0]}")
-			self.assertEqual(got[1], 'ns2.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[1]}")
+				# Test nameservers
+				got = self.int_resolver.query(zone, 'NS')
+				self.assertEqual(len(got), 2, f"Didn't get two nameservers in zone {zone}")	
+				got.sort()
+				self.assertEqual(got[0], 'ns1.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[0]}")
+				self.assertEqual(got[1], 'ns2.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[1]}")
 
 
 	def test_external_domains(self):
@@ -116,23 +129,26 @@ class TestDNS(unittest.TestCase):
 				"224-27.187.62.207.in-addr.arpa",
 				"5.2.4.f.f.0.8.0.0.8.3.f.7.0.6.2.ip6.arpa",
 			]:
-			got = self.ext_resolver.query(zone, 'SOA')
-			self.assertGreater(len(got), 0, f"Failed to resolve zone {zone}")	
+			if do_external:
+				got = self.ext_resolver.query(zone, 'SOA')
+				self.assertGreater(len(got), 0, f"Failed to resolve zone {zone}")	
 
-			# Test nameservers
-			got = self.ext_resolver.query(zone, 'NS')
-			self.assertEqual(len(got), 2, f"Didn't get two nameservers in zone {zone}: {got}")	
-			got.sort()
-			self.assertEqual(got[0], 'ns1.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[0]}")
-			self.assertEqual(got[1], 'ns2.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[1]}")
+				# Test nameservers
+				got = self.ext_resolver.query(zone, 'NS')
+				self.assertEqual(len(got), 2, f"Didn't get two nameservers in zone {zone}: {got}")	
+				got.sort()
+				self.assertEqual(got[0], 'ns1.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[0]}")
+				self.assertEqual(got[1], 'ns2.cis.cabrillo.edu.', f"Wrong nameserver in zone {zone}: {got[1]}")
 
 	def test_internal_forwards(self):
-		got = self.int_resolver.query('www.google.com', 'A')
-		self.assertGreater(len(got), 0, f"Internal zone did not forward a query.")	
+		if not do_external:
+			got = self.int_resolver.query('www.google.com', 'A')
+			self.assertGreater(len(got), 0, f"Internal zone did not forward a query.")	
 
 	def test_external_not_forwards(self):
-		got = self.ext_resolver.query('www.google.com', 'A')
-		self.assertEqual(len(got), 0, f"External zone DID forward a query.")	
+		if do_external:
+			got = self.ext_resolver.query('www.google.com', 'A')
+			self.assertEqual(len(got), 0, f"External zone DID forward a query.")	
 
 	# FIXME: No support for CAA in pydig.
 	#def test_external_caa(self):

@@ -18,6 +18,10 @@ spec:
         app: cis-dns-external
       annotations: {}
     spec:
+      volumes:
+        - name: dns-config
+          configMap:
+            name: cis-dns
       containers:
       - name: cis-dns-external
         image: ghcr.io/mike-matera/cis-infrastructure:dns-2022061004
@@ -25,6 +29,9 @@ spec:
         env:
           - name: DNS_ROLE
             value: "external"
+        volumeMounts:
+        - name: dns-config
+          mountPath: /cis-dns/source
         resources:
           requests:
             cpu: 100m
