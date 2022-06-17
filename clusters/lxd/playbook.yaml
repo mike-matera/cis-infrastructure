@@ -25,6 +25,18 @@
       vars:
         primary_interface: cisnet        
 
+- hosts: all 
+  name: Allow LXC to communicate over the network.
+  become: true
+  tags:
+    - network
+  tasks:
+    - name: Allow LXC port
+      community.general.ufw:
+        rule: allow
+        port: "8443"
+        proto: tcp
+
 - hosts: dell-r620-1.maas 
   name: Configure networking 
   become: true
@@ -36,7 +48,7 @@
       vars:
         lxd_preseed: |
           config:
-            core.https_address: dell-r620-1.maas:8443
+            core.https_address: 192.168.0.145:8443
           networks: []
           storage_pools:
           - config:
@@ -70,3 +82,19 @@
             cluster_certificate_path: ""
             cluster_token: ""
 
+
+- hosts: all 
+  name: Connect this host to the LXD daemon.
+  become: true
+  tags:
+    - lxd-login
+  tasks:
+    - name: Enable temporary password 
+      ansible.builtin.shell: lxc config set core.trust_password "asjdfalsjdfv0349jhuisadnvasukdnv"
+    - name: Login locally  
+      ansible.builtin.shell: lxc remote add lxc-cluster dell-r620-1.maas --accept-certificate --password "asjdfalsjdfv0349jhuisadnvasukdnv"
+      ignore_errors: yes
+      become: no
+      delegate_to: 127.0.0.1
+    - name: Remove temporary password 
+      ansible.builtin.shell: lxc config unset core.trust_password
