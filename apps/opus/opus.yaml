@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bootstrap
+data:
+  setup.sh: |
+    #! /bin/bash
+    set -e 
+    echo +++ INSTALLING ESSENTIAL PACKAGES
+    apt update -y
+    DEBIAN_FRONTEND=noninteractive apt install -y openssh-server 
+
+    echo +++ CREATING USER
+    useradd mmatera -c "Mike Matera" -u 1000 -U -G adm,sudo -m -s /usr/bin/bash
+    chown mmatera:mmatera /home/mmatera
+
+    echo +++ SYSTEM SETUP
+    echo search cis.cabrillo.edu maas | tee -a /etc/resolv.conf
+    echo "mmatera ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/mmatera
+
+    echo +++ USER SETUP
+    su mmatera -c "/usr/bin/ssh-import-id gh:mike-matera"
+
+    echo +++ RUN INIT
+    exec /sbin/init 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: opus
+  labels:
+    app: opus
+spec:
+  containers:
+  - name: opus
+    image: ghcr.io/mike-matera/ubuntu-server:opus-2022062003
+    securityContext:
+      privileged: true
+    ports:
+    - containerPort: 22
+    volumeMounts:
+    - name: bootstrap
+      mountPath: "/bootstrap"
+      readOnly: true
+    - name: ssh-config
+      mountPath: "/etc/ssh"
+    - name: home-mmatera
+      mountPath: "/home/mmatera"
+    command: ["bash"]
+    args: ["-c", "/bootstrap/setup.sh"]
+    resources:
+      requests:
+        cpu: "4000m"
+        memory: "4Gi"
+      limits:
+        cpu: "4000m"
+        memory: "4Gi"
+    livenessProbe:
+      tcpSocket:
+        port: 22
+      failureThreshold: 2
+      periodSeconds: 60
+  volumes:
+    - name: bootstrap
+      configMap:
+        name: bootstrap
+        defaultMode: 0700
+    - name: ssh-config
+      persistentVolumeClaim:
+        claimName: ssh-config
+    - name: home-mmatera
+      persistentVolumeClaim:
+        claimName: home-mmatera
+    - name: home-cis90
+      persistentVolumeClaim:
+        claimName: home-cis90
+    - name: home-cis91
+      persistentVolumeClaim:
+        claimName: home-cis91
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opus
+spec:
+  type: LoadBalancer
+  selector:
+    app: opus
+  ports:
+    - protocol: TCP
+      targetPort: 22
+      port: 22
+  loadBalancerIP: 172.30.5.250
