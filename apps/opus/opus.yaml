@@ -33,8 +33,9 @@ data:
 
   user.sh: |
     #! /usr/bin/bash
-    set -e 
 
+    set -e 
+    
     cd $HOME
     /usr/bin/ssh-import-id gh:mike-matera 
 
@@ -42,14 +43,13 @@ data:
       echo -e "Host github.com\n\tStrictHostKeyChecking no\n" | tee ~/.ssh/config
     fi 
 
-    if [ ! -d ~/lifealgorithmic-web ]; then 
-      git clone git@github.com:mike-matera/lifealgorithmic-web.git ~/lifealgorithmic-web
+    if [ -f ~/.ssh/id_rsa ]; then 
+      git clone git@github.com:mike-matera/lifealgorithmic-web.git /tmp/lifealgorithmic-web
+      (
+        cd /tmp/lifealgorithmic-web/source/cis-90/infrastructure
+        make local
+      )
     fi
-
-    (
-      cd ~/lifealgorithmic-web/source/cis-90/infrastructure
-      ansible-playbook --connection=local --inventory=127.0.0.1, --limit 127.0.0.1 opus.yaml 
-    )
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -142,4 +142,4 @@ spec:
     - protocol: TCP
       targetPort: 22
       port: 22
-  loadBalancerIP: 172.30.5.250
+  loadBalancerIP: 172.30.5.241
