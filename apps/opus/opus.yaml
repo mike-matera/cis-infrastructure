@@ -4,10 +4,10 @@ kind: ConfigMap
 metadata:
   name: bootstrap
 data:
-  setup.sh: |
-    #! /bin/bash
+  system.sh: |
+    #! /usr/bin/bash
     set -e 
-    echo +++ INSTALLING ESSENTIAL PACKAGES
+    echo +++ INSTALLING BOOSTRAP PACKAGES
     apt update -y
     DEBIAN_FRONTEND=noninteractive apt install -y openssh-server 
 
@@ -18,66 +18,117 @@ data:
     echo +++ SYSTEM SETUP
     echo search cis.cabrillo.edu maas | tee -a /etc/resolv.conf
     echo "mmatera ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/mmatera
+    echo "127.0.1.1 opus" | tee -a /etc/hosts 
+    echo "opus" | tee /etc/hostname 
+    hostname opus 
 
     echo +++ USER SETUP
-    su mmatera -c "/usr/bin/ssh-import-id gh:mike-matera"
+    cp /bootstrap/user.sh /tmp 
+    chown mmatera:mmatera /tmp/user.sh
+    su mmatera -c "/usr/bin/bash -c /tmp/user.sh"
 
     echo +++ RUN INIT
+    touch /ready
     exec /sbin/init 
+
+  user.sh: |
+    #! /usr/bin/bash
+    set -e 
+
+    cd $HOME
+    /usr/bin/ssh-import-id gh:mike-matera 
+
+    if [ ! -f ~/.ssh/config ]; then 
+      echo -e "Host github.com\n\tStrictHostKeyChecking no\n" | tee ~/.ssh/config
+    fi 
+
+    if [ ! -d ~/lifealgorithmic-web ]; then 
+      git clone git@github.com:mike-matera/lifealgorithmic-web.git ~/lifealgorithmic-web
+    fi
+
+    (
+      cd ~/lifealgorithmic-web/source/cis-90/infrastructure
+      ansible-playbook --connection=local --inventory=127.0.0.1, --limit 127.0.0.1 opus.yaml 
+    )
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: opus
   labels:
     app: opus
 spec:
-  containers:
-  - name: opus
-    image: ghcr.io/mike-matera/ubuntu-server:opus-2022062006
-    securityContext:
-      privileged: true
-    ports:
-    - containerPort: 22
-    volumeMounts:
-    - name: bootstrap
-      mountPath: "/bootstrap"
-      readOnly: true
-    - name: ssh-config
-      mountPath: "/etc/ssh"
-    - name: home-mmatera
-      mountPath: "/home/mmatera"
-    command: ["bash"]
-    args: ["-c", "/bootstrap/setup.sh"]
-    resources:
-      requests:
-        cpu: "4000m"
-        memory: "4Gi"
-      limits:
-        cpu: "4000m"
-        memory: "4Gi"
-    livenessProbe:
-      tcpSocket:
-        port: 22
-      failureThreshold: 2
-      periodSeconds: 60
-  volumes:
-    - name: bootstrap
-      configMap:
-        name: bootstrap
-        defaultMode: 0700
-    - name: ssh-config
-      persistentVolumeClaim:
-        claimName: ssh-config
-    - name: home-mmatera
-      persistentVolumeClaim:
-        claimName: home-mmatera
-    - name: home-cis90
-      persistentVolumeClaim:
-        claimName: home-cis90
-    - name: home-cis91
-      persistentVolumeClaim:
-        claimName: home-cis91
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opus
+  template:
+    metadata:
+      labels:
+        app: opus
+    spec:
+      containers:
+      - name: opus
+        image: ghcr.io/mike-matera/ubuntu-server:opus-2022062101
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - name: bootstrap
+          mountPath: "/bootstrap"
+          readOnly: true
+        - name: ssh-config
+          mountPath: "/etc/ssh"
+        - name: home-mmatera
+          mountPath: "/home/mmatera"
+        - name: home-cis90
+          mountPath: "/home/cis90"
+        - name: home-cis91
+          mountPath: "/home/cis91"
+        - name: home-cis92
+          mountPath: "/home/cis92"
+        command: ["bash"]
+        args: ["-c", "/bootstrap/system.sh"]
+        resources:
+          requests:
+            cpu: "4000m"
+            memory: "4Gi"
+          limits:
+            cpu: "4000m"
+            memory: "4Gi"
+        livenessProbe:
+          tcpSocket:
+            port: 22
+          failureThreshold: 2
+          periodSeconds: 60
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /ready
+          initialDelaySeconds: 30
+          periodSeconds: 5
+      volumes:
+        - name: bootstrap
+          configMap:
+            name: bootstrap
+            defaultMode: 0700
+        - name: ssh-config
+          persistentVolumeClaim:
+            claimName: ssh-config
+        - name: home-mmatera
+          persistentVolumeClaim:
+            claimName: home-mmatera
+        - name: home-cis90
+          persistentVolumeClaim:
+            claimName: home-cis90
+        - name: home-cis91
+          persistentVolumeClaim:
+            claimName: home-cis91
+        - name: home-cis92
+          persistentVolumeClaim:
+            claimName: home-cis92
 ---
 apiVersion: v1
 kind: Service

@@ -50,3 +50,16 @@ spec:
     requests:
       storage: 100Gi
   storageClassName: ssd-ha
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-cis92
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 200Gi
+  storageClassName: ssd-ha
