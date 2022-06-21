@@ -34,7 +34,7 @@ metadata:
 spec:
   containers:
   - name: opus
-    image: ghcr.io/mike-matera/ubuntu-server:opus-2022062005
+    image: ghcr.io/mike-matera/ubuntu-server:opus-2022062006
     securityContext:
       privileged: true
     ports:
