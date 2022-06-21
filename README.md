@@ -1,22 +1,18 @@
 # cis-infrastructure
 
-![DNS](https://github.com/mike-matera/cis-infrastructure/workflows/DNS/badge.svg?branch=master)
+![DNS](https://github.com/mike-matera/cis-infrastructure/workflows/DNS/badge.svg?branch=main)
+
+![Opus](https://github.com/mike-matera/cis-infrastructure/workflows/Opus/badge.svg?branch=main)
 
 Infrastructure for the CIS Datacenter
 
 ## Contents 
 
- - `/ansible` - Playbooks to deploy servers
- - `/DNS` - Resources for building DNS containers.  
- - `/kubernetes` - Deployment resources 
-
-## Infrastructure 
-
-This repository is used to deploy two key pieces of infrastrucure:
-
-| Host(s) | Addresses | Purpose | 
-| --- | --- | --- | 
-| opus.cis.cabrillo.edu | 207.62.187.228<br>172.30.5.228/24<br>2607:F380:80F:F425::228/64 | The login server for administrative and student use. This server provides access to infrastructure and other systems. 
-| ns1.cis.cabrillo.edu<br>ns2.cis.cabrillo.edu | 207.62.187.252<br>2607:f380:80f:f425::252<br>207.62.187.253<br>2607:f380:80f:f425::253<br> | DNS services. 
- 
+ - `clusters/lxd` - An LXD cluster to VM-like applications. 
+ - `clusters/proliant` - A Kubernetes cluster using the new Proliant machines
+ - `clusters/student` - Currently broken. The old jupyter cluster. 
+ - `apps/DNS` - The DNS servers (Kubernetes)
+ - `apps/jupyterhub` - Juypterhub (Kubernetes)
+ - `apps/opus` - The Opus login server (Kubernetes)
+ - `apps/vpn` - The VPN server (LXD)
 
