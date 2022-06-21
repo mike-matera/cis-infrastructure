@@ -1,9 +1,5 @@
 # cis-infrastructure
 
-![DNS](https://github.com/mike-matera/cis-infrastructure/workflows/DNS/badge.svg?branch=main)
-
-![Opus](https://github.com/mike-matera/cis-infrastructure/workflows/Opus/badge.svg?branch=main)
-
 Infrastructure for the CIS Datacenter
 
 ## Contents 
