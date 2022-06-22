@@ -12,7 +12,7 @@ RUN rm -f /etc/update-motd.d/60-unminimize && \
     dpkg-divert --quiet --remove --rename /usr/bin/man
 
 RUN apt update -y && DEBIAN_FRONTEND=noninteractive apt install -y \
-    ubuntu-server sudo curl git python3-pip python3-venv podman man-db ansible
+    ubuntu-server sudo curl git python3-pip python3-venv podman man-db ansible rsyslog
 
 STOPSIGNAL SIGRTMIN+3
 ENTRYPOINT [ "/sbin/init" ] 
