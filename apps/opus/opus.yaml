@@ -21,6 +21,7 @@ data:
     echo "127.0.1.1 opus" | tee -a /etc/hosts 
     echo "opus" | tee /etc/hostname 
     hostname opus 
+    systemctl enable rsyslog && systemctl start rsyslog 
 
     echo +++ USER SETUP
     cp /bootstrap/user.sh /tmp 
@@ -69,7 +70,7 @@ spec:
     spec:
       containers:
       - name: opus
-        image: ghcr.io/mike-matera/ubuntu-server:opus-2022062101
+        image: ghcr.io/mike-matera/ubuntu-server:opus-2022062201
         securityContext:
           privileged: true
         ports:
