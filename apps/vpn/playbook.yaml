@@ -168,6 +168,15 @@
           [Peer]
           PublicKey = OoPIsnqxh9+eyqzNMcA5nTKHwm9Dm5MREpHp/TXF5Ao=
           AllowedIPs = 10.8.0.3/32
+    - name: Create peer configuration.
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        create: no
+        marker: "## {mark} -- Ansible configuration for mike-mouthfeel" 
+        block: |
+          [Peer]
+          PublicKey = m72/kV327KuOSs2NwY/OPM94IA10dPVJ7/MuCOGtUFo=
+          AllowedIPs = 10.8.0.4/32
     - name: Enable and start the service
       ansible.builtin.systemd:
         name: wg-quick@wg0
