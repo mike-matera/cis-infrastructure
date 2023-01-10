@@ -137,3 +137,26 @@
       role: ../../ansible-common/roles/microk8s-join
       vars:
         leader_login: 'ubuntu@dell-r620-1.maas'
+
+- hosts: dell-r620-1.maas
+  name: Configure microk8s
+  become: true
+  tags:
+    - microk8s-config
+  tasks:
+    - name: Enable Community add-ons
+      shell: /snap/bin/microk8s enable community
+    - name: Enable RBAC
+      shell: /snap/bin/microk8s enable rbac
+    - name: Enable Helm v3
+      shell: /snap/bin/microk8s enable helm3 
+    - name: Enable kube dns.
+      shell: /snap/bin/microk8s enable dns 
+    - name: Enable MetalLB
+      shell: /snap/bin/microk8s enable metallb:172.30.5.250-172.30.5.254
+    - name: Enable Ingress
+      shell: /snap/bin/microk8s enable ingress 
+    - name: Enable dashboard
+      shell: /snap/bin/microk8s enable dashboard 
+    - name: Enable OpenEBS/cStor
+      shell: /snap/bin/microk8s enable community/openebs
