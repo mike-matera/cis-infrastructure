@@ -25,7 +25,10 @@
       vars:
         primary_interface: cisnet        
 
-- hosts: all 
+#
+# Setup LXD 
+#
+- hosts: dell-r620-1.maas  
   name: Allow LXC to communicate over the network.
   become: true
   tags:
@@ -98,3 +101,39 @@
       delegate_to: 127.0.0.1
     - name: Remove temporary password 
       ansible.builtin.shell: lxc config unset core.trust_password
+
+#
+# Setup Microk8s
+#
+- hosts: all
+  name: Configure the hosts. 
+  become: true
+  tags:
+    - host
+  tasks:
+  - ansible.posix.sysctl:
+      name: fs.inotify.max_user_watches
+      value: '1048576'
+      sysctl_set: yes
+  - ansible.posix.sysctl:
+      name: fs.inotify.max_user_instances
+      value: '512'
+      sysctl_set: yes
+
+- hosts: all
+  name: Install microk8s. 
+  become: true
+  roles:
+    - microk8s:
+      role: ../../ansible-common/roles/microk8s
+
+- hosts: dell-r620-2.maas
+  name: Join the cluser
+  become: true
+  tags:
+    - join
+  roles:
+    - microk8s-join:
+      role: ../../ansible-common/roles/microk8s-join
+      vars:
+        leader_login: 'ubuntu@dell-r620-1.maas'

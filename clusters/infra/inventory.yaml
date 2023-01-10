@@ -2,3 +2,5 @@ all:
   hosts:
     dell-r620-1.maas:
       ansible_user: ubuntu 
+    dell-r620-2.maas:
+      ansible_user: ubuntu 

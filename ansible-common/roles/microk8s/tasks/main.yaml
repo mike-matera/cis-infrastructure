@@ -51,6 +51,11 @@
     name: nvme-tcp
     state: present
 
+- name: Allow forwarding
+  ufw:
+    rule: allow
+    route: yes
+
 - name: Install microk8s by snap
   snap:
     classic: yes
@@ -65,7 +70,7 @@
 
 - name: Reset SSH to allow ubuntu int microk8s group.
   meta: reset_connection
-  
+
 - name: Start microk8s
   shell: /snap/bin/microk8s start 
 
@@ -105,11 +110,6 @@
   community.general.ufw:
     rule: allow
     src: 172.30.5.0/24
-
-- name: Allow forwarding
-  ufw:
-    rule: allow
-    route: yes
 
 - name: Get microk8s configuration file. 
   delegate_to: '{{ inventory_hostname }}'
